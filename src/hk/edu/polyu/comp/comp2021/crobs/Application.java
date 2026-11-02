@@ -1,11 +1,12 @@
 package hk.edu.polyu.comp.comp2021.crobs;
 
-import hk.edu.polyu.comp.comp2021.crobs.model.CROBS;
+public final class Application {
+    private Application() {
+    }
 
-public class Application {
-
-    public static void main(String[] args){
-        CROBS crobs = new CROBS();
-        // Initialize and utilize the system
+    public static void main(String[] args) {
+        // TODO: parse -html/-txt flags, wire MVC and loggers, run loop.
+        // TODO: close loggers on quit, EOF and failures.
+        throw new UnsupportedOperationException("TODO: implement application startup");
     }
 }
