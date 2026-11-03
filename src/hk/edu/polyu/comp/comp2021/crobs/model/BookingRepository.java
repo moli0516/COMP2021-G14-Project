@@ -1,28 +1,34 @@
 package hk.edu.polyu.comp.comp2021.crobs.model;
 
+import hk.edu.polyu.comp.comp2021.crobs.model.exceptions.NotFoundException;
+import hk.edu.polyu.comp.comp2021.crobs.model.exceptions.ValidationException;
+
 import java.util.*;
 
 public final class BookingRepository {
     private final Map<String, Booking> entries = new HashMap<>();
 
     public Booking require(String bookingId) {
-        // TODO: find by ID or throw NotFoundException.
-        return entries.get(bookingId);
+        Booking booking = entries.get(bookingId);
+        if(booking == null){
+            throw new NotFoundException("The booking is not found");
+        }
+        return booking;
     }
 
     public void add(Booking value) {
-        // TODO: reject duplicate ID before insertion.
         if(!entries.containsKey(value.getBookingId())) entries.put(value.getBookingId(),value);
+        else throw new ValidationException("The booking exists already");
     }
 
     public void replace(Booking value) {
-        // TODO: replace existing entity only.
         if(entries.containsKey(value.getBookingId())) entries.replace(value.getBookingId(),value);
+        else throw new NotFoundException("The booking is not found");
     }
 
     public void remove(String bookingId) {
-        // TODO: remove existing entity.
-        entries.remove(bookingId);
+        if(entries.containsKey(bookingId)) entries.remove(bookingId);
+        else throw new NotFoundException("The booking is not found");
     }
 
     public List<Booking> findAll() {
