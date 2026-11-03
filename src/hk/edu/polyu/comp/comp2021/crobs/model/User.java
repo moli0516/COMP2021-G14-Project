@@ -8,7 +8,7 @@ public abstract class User {
     private final String name;
 
     protected User(String userId, String name){
-        if(name == null || name.isBlank()){
+        if(name == null || name.trim().isEmpty()){
             throw new ValidationException("Name cannot be null");
         }
         this.userId = userId;

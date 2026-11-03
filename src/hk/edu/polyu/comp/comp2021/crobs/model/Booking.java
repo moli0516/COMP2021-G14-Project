@@ -18,16 +18,16 @@ public final class Booking {
     public Booking(String bookingId, String ownerUserId, String roomId,
                    LocalDate date, LocalTime startTime, LocalTime endTime,
                    String purpose, boolean cancelled) {
-        if(bookingId == null || bookingId.isBlank()){
+        if(bookingId == null || bookingId.trim().isEmpty()){
             throw new ValidationException("Booking id cannot be null");
         }
-        if(ownerUserId == null || ownerUserId.isBlank()){
+        if(ownerUserId == null || ownerUserId.trim().isEmpty()){
             throw new ValidationException("Owner user id cannot be null");
         }
-        if(roomId == null || roomId.isBlank()){
+        if(roomId == null || roomId.trim().isEmpty()){
             throw new ValidationException("Room cannot be null");
         }
-        if(purpose == null || purpose.isBlank()){
+        if(purpose == null || purpose.trim().isEmpty()){
             throw new ValidationException("Room cannot be null");
         }
         if(date == null){

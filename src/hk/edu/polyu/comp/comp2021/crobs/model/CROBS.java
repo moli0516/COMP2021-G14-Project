@@ -42,7 +42,7 @@ public class CROBS {
             throw new AuthorizationException("Please logout before login");
         }
         if (currentUserId == null){
-            if(userId == null || userId.isBlank()) throw new ValidationException("The userId is blanked");
+            if(userId == null || userId.trim().isEmpty()) throw new ValidationException("The userId is blanked");
         }
 
         User user = users.require(userId);
