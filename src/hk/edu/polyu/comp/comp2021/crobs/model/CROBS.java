@@ -1,10 +1,12 @@
 package hk.edu.polyu.comp.comp2021.crobs.model;
 
 import hk.edu.polyu.comp.comp2021.crobs.model.exceptions.AuthorizationException;
+import hk.edu.polyu.comp.comp2021.crobs.model.exceptions.BookingConflictException;
 import hk.edu.polyu.comp.comp2021.crobs.model.exceptions.ValidationException;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Objects;
 import java.util.Set;
 
 public class CROBS {
@@ -23,19 +25,26 @@ public class CROBS {
         this.idGenerator = new IdGenerator();
 
         this.currentUserId = null;
+        User superAdmin = new SuperAdmin("SA001", "superadmin");
+        users.add(superAdmin);
     }
 
     public User getCurrentUser(){
-        return users.require(currentUserId);
+        try {
+            return users.require(currentUserId);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public void login(String userId){
         if (currentUserId != null) {
             throw new AuthorizationException("Please logout before login");
         }
-        if (currentUserId == null && userId.trim().isEmpty()){
-            throw new ValidationException("The userId is null");
+        if (currentUserId == null){
+            if(userId == null || userId.trim().isEmpty()) throw new ValidationException("The userId is blanked");
         }
+
         User user = users.require(userId);
         currentUserId = user.getUserId();
     }
@@ -53,6 +62,9 @@ public class CROBS {
         requiredAdmin();
 
         users.remove(targetUserId);
+        for(Booking existing : bookings.findByOwner(targetUserId)){
+            bookings.remove(existing.getBookingId());
+        }
     }
 
     public void logout(){
@@ -70,7 +82,7 @@ public class CROBS {
     }
 
     private User requiredAdmin(){
-        User user = getCurrentUser();
+        User user = requiredLoggedIn();
         if(!user.isAdmin()){
             throw new AuthorizationException("Admin privilege is required");
         }
@@ -102,8 +114,10 @@ public class CROBS {
     public Booking createBooking(String roomId, LocalDate date,
                                  LocalTime startTime, LocalTime endTime, String purpose){
         requiredLoggedIn();
+        rooms.require(roomId);
+        checkBookingConflict(roomId, date, startTime, endTime, null);
         
-        Booking booking = new Booking(idGenerator.nextBookingId(),currentUserId,roomId,date,startTime,endTime,purpose,true);
+        Booking booking = new Booking(idGenerator.nextBookingId(),currentUserId,roomId,date,startTime,endTime,purpose,false);
         bookings.add(booking);
         return booking;
     }
@@ -112,16 +126,39 @@ public class CROBS {
                           LocalDate date, LocalTime startTime, LocalTime endTime,
                           String purpose){
         requiredLoggedIn();
+        if(!Objects.equals(currentUserId, bookings.require(bookingId).getOwnerUserId())){
+            throw new AuthorizationException("Regular user cannot modify");
+        }
 
-        Booking booking = new Booking(bookingId,currentUserId,roomId,date,startTime,endTime,purpose,true);
+        rooms.require(roomId);
+
+        checkBookingConflict(roomId, date, startTime, endTime, bookingId);
+
+        Booking booking = new Booking(bookingId,currentUserId,roomId,date,startTime,endTime,purpose,false);
         bookings.replace(booking);;
         return booking;
     }
 
-    void deleteBooking(String bookingId){
+    public void deleteBooking(String bookingId){
         requiredLoggedIn();
+        if(!Objects.equals(currentUserId, bookings.require(bookingId).getOwnerUserId())){
+            throw new AuthorizationException("Regular user cannot delete booking");
+        }
 
         bookings.remove(bookingId);
+    }
+
+    private void checkBookingConflict(String roomId, LocalDate date, LocalTime startTime, LocalTime endTime, String idToExclude){
+        for(Booking existing : bookings.findByRoom(roomId)){
+            if(!existing.isCancelled()){
+                if(!existing.getBookingId().equals(idToExclude)){
+                    if (existing.getDate().equals(date) && existing.overlaps(startTime, endTime)) {
+
+                        throw new BookingConflictException("The room is already booked during this time.");
+                    }
+                }
+            }
+        }
     }
 
 }

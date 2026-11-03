@@ -1,5 +1,7 @@
 package hk.edu.polyu.comp.comp2021.crobs.model;
 
+import hk.edu.polyu.comp.comp2021.crobs.model.exceptions.ValidationException;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 
@@ -16,7 +18,30 @@ public final class Booking {
     public Booking(String bookingId, String ownerUserId, String roomId,
                    LocalDate date, LocalTime startTime, LocalTime endTime,
                    String purpose, boolean cancelled) {
-        // TODO: enforce nonblank IDs/purpose, nonnull values and start < end.
+        if(bookingId == null || bookingId.trim().isEmpty()){
+            throw new ValidationException("Booking id cannot be null");
+        }
+        if(ownerUserId == null || ownerUserId.trim().isEmpty()){
+            throw new ValidationException("Owner user id cannot be null");
+        }
+        if(roomId == null || roomId.trim().isEmpty()){
+            throw new ValidationException("Room cannot be null");
+        }
+        if(purpose == null || purpose.trim().isEmpty()){
+            throw new ValidationException("Room cannot be null");
+        }
+        if(date == null){
+            throw new ValidationException("Date cannot be null");
+        }
+        if(startTime == null ){
+            throw new ValidationException("Start time cannot be null");
+        }
+        if(endTime == null){
+            throw new ValidationException("End time cannot be null");
+        }
+        if(startTime.isAfter(endTime) || startTime.equals(endTime)){
+            throw new ValidationException("End time is greater or equal to the start time");
+        }
         this.bookingId = bookingId;
         this.ownerUserId = ownerUserId;
         this.roomId = roomId;
@@ -37,17 +62,29 @@ public final class Booking {
     public boolean isCancelled() { return cancelled; }
 
     public boolean overlaps(LocalTime otherStart, LocalTime otherEnd) {
-        // Caller must also check room, date and cancellation state.
-        throw new UnsupportedOperationException("TODO: half-open interval overlap");
+        if (otherStart == null || otherEnd == null) {
+            throw new ValidationException(
+                    "Start time and end time cannot be null."
+            );
+        }
+
+        if (!otherStart.isBefore(otherEnd)) {
+            throw new ValidationException(
+                    "Start time must be before end time."
+            );
+        }
+
+        return startTime.isBefore(otherEnd) && otherStart.isBefore(endTime);
     }
 
     public Booking withDetails(String newRoomId, LocalDate newDate,
                                LocalTime newStart, LocalTime newEnd,
                                String newPurpose) {
-        throw new UnsupportedOperationException("TODO: half-open interval overlap");
+        return new Booking(this.bookingId, this.ownerUserId, newRoomId, newDate, newStart, newEnd, newPurpose, this.cancelled);
     }
 
     public Booking cancel() {
-        throw new UnsupportedOperationException("TODO: return cancelled copy");
+        if (isCancelled()) throw new ValidationException("The booking already canceled");
+        return new Booking(this.bookingId,this.ownerUserId,this.roomId,this.date,this.startTime,this.endTime,this.purpose,true);
     }
 }
