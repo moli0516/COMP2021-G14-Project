@@ -1,13 +1,13 @@
 package hk.edu.polyu.comp.comp2021.crobs.model;
 
 public class SuperAdmin extends AdminUser{
-    public SuperAdmin(String user_id, String name){
-        super(user_id, name);
+    public SuperAdmin(String userId, String name){
+        super(userId, name);
     }
 
     @Override
-    public UserRole get_role(){ return UserRole.SUPERADMIN; }
+    public UserRole getRole(){ return UserRole.SUPERADMIN; }
 
     @Override
-    public boolean can_change_roles(){ return true; }
+    public boolean canChangeRoles(){ return true; }
 }

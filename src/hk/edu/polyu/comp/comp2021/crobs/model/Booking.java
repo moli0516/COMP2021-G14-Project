@@ -44,7 +44,7 @@ public final class Booking {
     public Booking withDetails(String newRoomId, LocalDate newDate,
                                LocalTime newStart, LocalTime newEnd,
                                String newPurpose) {
-        throw new UnsupportedOperationException("TODO: preserve booking ID and owner");
+        throw new UnsupportedOperationException("TODO: half-open interval overlap");
     }
 
     public Booking cancel() {
