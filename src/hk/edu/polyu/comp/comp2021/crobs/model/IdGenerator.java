@@ -1,19 +1,33 @@
 package hk.edu.polyu.comp.comp2021.crobs.model;
 
+import java.util.Locale;
+
 public final class IdGenerator {
     private long nextUserNumber = 1;
     private long nextRoomNumber = 1;
     private long nextBookingNumber = 1;
 
     public String nextUserId() {
-        throw new UnsupportedOperationException("TODO: unique session user ID");
+        return String.format(
+                Locale.ROOT,
+                "U%06d",
+                nextUserNumber++
+        );
     }
 
     public String nextRoomId() {
-        throw new UnsupportedOperationException("TODO: unique session room ID");
+        return String.format(
+                Locale.ROOT,
+                "R%06d",
+                nextRoomNumber++
+        );
     }
 
     public String nextBookingId() {
-        throw new UnsupportedOperationException("TODO: unique session booking ID");
+        return String.format(
+                Locale.ROOT,
+                "B%06d",
+                nextBookingNumber++
+        );
     }
 }

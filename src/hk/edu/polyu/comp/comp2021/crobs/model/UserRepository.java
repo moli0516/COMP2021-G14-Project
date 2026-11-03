@@ -1,5 +1,6 @@
 package hk.edu.polyu.comp.comp2021.crobs.model;
 
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
@@ -9,27 +10,27 @@ public final class UserRepository {
 
     public User require(String userId) {
         // TODO: find by ID or throw NotFoundException.
-        throw new UnsupportedOperationException("TODO: implement");
+        return entries.get(userId);
     }
 
     public void add(User value) {
         // TODO: reject duplicate ID before insertion.
-        throw new UnsupportedOperationException("TODO: implement");
+        if(!entries.containsKey(value.getUserId())) entries.put(value.getUserId(), value);
     }
 
     public void replace(User value) {
         // TODO: replace existing entity only.
-        throw new UnsupportedOperationException("TODO: implement");
+        if(entries.containsKey(value.getUserId())) entries.replace(value.getUserId(), value);
     }
 
     public void remove(String userId) {
         // TODO: remove existing entity.
-        throw new UnsupportedOperationException("TODO: implement");
+        entries.remove(userId);
     }
 
     public List<User> findAll() {
         // TODO: return detached list, not live map view.
-        throw new UnsupportedOperationException("TODO: implement");
+        return new ArrayList<User>(entries.values());
     }
 
 }
