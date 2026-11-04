@@ -93,4 +93,34 @@ class CROBSUserTest {
         crobs.login("SA001");
         assertThrows(NotFoundException.class, () -> crobs.removeUser("UNKNOWN"));
     }
+
+    @Test void changeUserRole(){
+        CROBS crobs = new CROBS();
+        crobs.login("SA001");
+        crobs.addUser("Alex");
+        crobs.changeRole("U000001");
+        crobs.logout();
+        crobs.login("U000001");
+        assertEquals(UserRole.ADMIN, crobs.getCurrentUser().getRole());
+        crobs.logout();
+        crobs.login("SA001");
+        crobs.changeRole("U000001");
+        crobs.logout();
+        crobs.login("U000001");
+        assertEquals(UserRole.REGULAR, crobs.getCurrentUser().getRole());
+    }
+
+    @Test void nonSuperAdminCannotChangeUserRole(){
+        CROBS crobs = new CROBS();
+        crobs.login("SA001");
+        crobs.addUser("Alex");
+        crobs.addUser("Alan");
+        crobs.changeRole("U000001");
+        crobs.logout();
+        crobs.login("U000001");
+        assertThrows(AuthorizationException.class, () -> crobs.changeRole("U000002"));
+        crobs.logout();
+        crobs.login("U000002");
+        assertThrows(AuthorizationException.class, () -> crobs.changeRole("U000001"));
+    }
 }

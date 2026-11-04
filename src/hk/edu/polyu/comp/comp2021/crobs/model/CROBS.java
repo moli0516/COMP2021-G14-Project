@@ -67,6 +67,19 @@ public class CROBS {
         }
     }
 
+    public void changeRole(String userId){
+        requireSuperAdmin();
+
+        User user = users.require(userId);
+        User new_user;
+        if(user.isAdmin()){
+            new_user = new RegularUser(user.getUserId(),user.getName());
+        } else {
+            new_user = new AdminUser(user.getUserId(),user.getName());
+        }
+        users.replace(new_user);
+    }
+
     public void logout(){
         requiredLoggedIn();
 
@@ -92,7 +105,7 @@ public class CROBS {
     private User requireSuperAdmin(){
         User user = getCurrentUser();
         if(!user.canChangeRoles()){
-            throw new AuthorizationException("Admin privilege is required");
+            throw new AuthorizationException("SuperAdmin privilege is required");
         }
         return user;
     }
