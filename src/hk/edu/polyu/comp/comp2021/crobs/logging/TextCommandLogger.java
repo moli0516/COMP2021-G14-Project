@@ -1,26 +1,29 @@
 package hk.edu.polyu.comp.comp2021.crobs.logging;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 public final class TextCommandLogger implements CommandLogger {
     private final Path path;
+    private final BufferedWriter writer;
 
     public TextCommandLogger(Path path) throws IOException {
         this.path = path;
-        // TODO: open UTF-8 writer and handle initialization failures.
-        throw new UnsupportedOperationException("TODO: initialize logger");
+        this.writer = Files.newBufferedWriter(this.path, StandardCharsets.UTF_8);
     }
 
     @Override
     public void log(String commandLine) throws IOException {
-        // TODO: write exactly one raw command per line in execution order; flush.
-        throw new UnsupportedOperationException("TODO: write command");
+        writer.write(commandLine);
+        writer.newLine();
+        writer.flush();
     }
 
     @Override
     public void close() throws IOException {
-        // TODO: close owned writer; HTML logger must finish table/document.
-        throw new UnsupportedOperationException("TODO: close logger safely");
+        writer.close();
     }
 }
