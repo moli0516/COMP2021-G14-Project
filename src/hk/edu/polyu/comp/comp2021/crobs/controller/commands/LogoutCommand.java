@@ -12,7 +12,7 @@ public final class LogoutCommand implements Command {
 
     @Override
     public String execute() {
-        // TODO: call the corresponding CROBS API and format its result.
-        throw new UnsupportedOperationException("TODO: implement");
+        crobs.logout();
+        return "Logged out.";
     }
 }

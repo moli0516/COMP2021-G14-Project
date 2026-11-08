@@ -17,7 +17,7 @@ public final class HtmlCommandLogger implements CommandLogger {
         this.writer=Files.newBufferedWriter(this.path, StandardCharsets.UTF_8);
         writer.write("<!DOCTYPE html>");
         writer.newLine();
-        writer.write("<html><head><meta charset=\"UTF-8\"><titles><CROBS Command Loog</title></head><body>>");
+        writer.write("<html><head><meta charset=\"UTF-8\"><titles><CROBS Command Log</title></head><body>>");
         writer.newLine();
         writer.write("<table border=\"1\">");
         writer.newLine();
@@ -29,7 +29,7 @@ public final class HtmlCommandLogger implements CommandLogger {
     @Override
     public void log(String commandLine) throws IOException {
         index++;
-        writer.write("<tr><td>"+index"</td><td>"+escape(commandLine)+"</td></tr>");
+        writer.write("<tr><td>"+index+"</td><td>"+escape(commandLine)+"</td></tr>");
         writer.newLine();
         writer.flush();
     }
@@ -44,14 +44,15 @@ public final class HtmlCommandLogger implements CommandLogger {
             writer.write("</table>");
             writer.newLine();
             writer.write("</body></html>");
-            wrietr.newLine();
+            writer.newLine();
+        }finally {
+            writer.close();
         }
-        writer.close();
     }
     static String escape(String text){
         String res=text.replace("&","&amp;").replace("<","&lt;")
         .replace(">","&gt;").replace("\"","&quot;")
-        .replace("'","&#39");
+        .replace("'","&#39;");
         return res;
     }
 }

@@ -10,6 +10,11 @@ import java.util.Objects;
 import java.util.Comparator;
 
 public final class OutputFormatter {
+    private static final Comparator<Booking> BY_DATE_TIME_ID=Comparator.comparing(Booking::getDate)
+            .thenComparing(Booking::getStartTime).thenComparing(Booking::getBookingId);
+    public String formatUser(User user){
+        return user.getUserId()+"("+user.getName()+", "+user.getRole()+")";
+    }
     public String formatRoom(Room room) {
         String features = new TreeSet<String>(room.getFeatures().asSet()).toString();
         return room.getRoomId() + " | " + room.getRoomType().toCommand()
@@ -28,6 +33,11 @@ public final class OutputFormatter {
         }
         return s.toString();
     }
+    public String formatBooking(Booking b){
+        String res=b.getBookingId()+" room "+b.getRoomId()+" "+b.getDate()+" "+b.getStartTime()+"-"
+                +b.getEndTime()+" "+b.getPurpose()+" "+(b.isCancelled()?"CANCELLED":"ACTIVE");
+        return res;
+    }
 
     public String formatBookings(List<Booking> bookings) {
         if (bookings.isEmpty()){
@@ -43,22 +53,29 @@ public final class OutputFormatter {
     }
 
     public String formatSchedule(List<Booking> bookings, User viewer) {
-        List<Booking> current=new ArrayList<>();
-        for(Booking b: bookings){
-            if(!b.isCancelled()){
+        List<Booking> current = new ArrayList<>();
+        for (Booking b : bookings) {
+            if (!b.isCancelled()) {
                 current.add(b);
             }
         }
-        if (current.isEmpty()){
+        if (current.isEmpty()) {
             return "No bookings this week.";
         }
         current.sort(BY_DATE_TIME_ID);
-        StringBuilder s= new StringBuilder();
-        for (Booking b:current){
-            boolean canSeeOwner=viewer.isAdmin()||Objects.equals(viewer.getUserId(), b.getOwnerUserId());
-            appendLine(s, b.getBookingId()+" | "+b.getDate()+" "
-            +b.getStartTime()+"-"+b.getEndTime()+" | "+b.getPurpose()
-            +" | booked by"+(canSeeOwner ? b.getOwnerUserId() : "hidden"));
+        StringBuilder s = new StringBuilder();
+        for (Booking b : current) {
+            boolean canSeeOwner = viewer.isAdmin() || Objects.equals(viewer.getUserId(), b.getOwnerUserId());
+            appendLine(s, b.getBookingId() + " | " + b.getDate() + " "
+                    + b.getStartTime() + "-" + b.getEndTime() + " | " + b.getPurpose()
+                    + " | booked by" + (canSeeOwner ? b.getOwnerUserId() : "hidden"));
+            return s.toString();
         }
-        return s.toString();
     }
+        private static void appendLine(StringBuilder s, String line){
+            if (s.length()>0){
+                s.append(System.lineSeparator());
+            }
+            s.append(line);
+        }
+}

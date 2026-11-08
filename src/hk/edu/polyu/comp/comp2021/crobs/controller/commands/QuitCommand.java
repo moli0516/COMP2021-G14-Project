@@ -9,10 +9,12 @@ public final class QuitCommand implements Command {
     public QuitCommand(CROBS crobs) {
         this.crobs = crobs;
     }
-
+    @Override 
+    public boolean isQuit(){
+        return true;
+    }
     @Override
     public String execute() {
-        // TODO: signal loop termination without System.exit in the model.
-        throw new UnsupportedOperationException("TODO: implement");
+        return "Bye.";
     }
 }
