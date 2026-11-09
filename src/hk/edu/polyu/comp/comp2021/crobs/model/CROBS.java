@@ -8,6 +8,8 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Objects;
 import java.util.Set;
+import java.util.Comparator;
+import java.util.List;
 
 public class CROBS {
 
@@ -58,26 +60,57 @@ public class CROBS {
         return user;
     }
 
-    public void removeUser(String targetUserId){
+    public void removeUser(String targetUserId) {
         requiredAdmin();
 
-        users.remove(targetUserId);
-        for(Booking existing : bookings.findByOwner(targetUserId)){
-            bookings.remove(existing.getBookingId());
+        if (targetUserId == null || targetUserId.trim().isEmpty()) {
+            throw new ValidationException("Target user ID must not be blank");
         }
+        User target = users.require(targetUserId);
+        if (target.getRole() != UserRole.REGULAR) {
+            throw new AuthorizationException(
+                    "Only regular users can be removed");
+        }
+        for (Booking booking : bookings.findByOwner(target.getUserId())) {
+            bookings.remove(booking.getBookingId());
+        }
+        users.remove(target.getUserId());
     }
 
-    public void changeRole(String userId){
+    public void changeRole(String userId, UserRole newRole) {
         requireSuperAdmin();
-
-        User user = users.require(userId);
-        User new_user;
-        if(user.isAdmin()){
-            new_user = new RegularUser(user.getUserId(),user.getName());
-        } else {
-            new_user = new AdminUser(user.getUserId(),user.getName());
+        if (userId == null || userId.trim().isEmpty()) {
+            throw new ValidationException("User ID must not be blank");
         }
-        users.replace(new_user);
+        if (newRole == null) {
+            throw new ValidationException("New role must not be null");
+        }
+
+        User target = users.require(userId);
+
+        if (target.canChangeRoles()) {
+            throw new AuthorizationException(
+                    "The superadmin's role cannot be changed");
+        }
+        if (newRole != UserRole.REGULAR && newRole != UserRole.ADMIN) {
+            throw new ValidationException(
+                    "New role must be REGULAR or ADMIN");
+        }
+        if (target.getRole() == newRole) {
+            throw new ValidationException(
+                    "User already has role " + newRole);
+        }
+
+        User replacement;
+
+        if (newRole == UserRole.ADMIN) {
+            replacement = new AdminUser(
+                    target.getUserId(), target.getName());
+        } else {
+            replacement = new RegularUser(
+                    target.getUserId(), target.getName());
+        }
+        users.replace(replacement);
     }
 
     public void logout(){
@@ -103,7 +136,7 @@ public class CROBS {
     }
 
     private User requireSuperAdmin(){
-        User user = getCurrentUser();
+        User user = requiredLoggedIn();
         if(!user.canChangeRoles()){
             throw new AuthorizationException("SuperAdmin privilege is required");
         }
@@ -172,6 +205,20 @@ public class CROBS {
                 }
             }
         }
+    }
+    public List<Booking> getCurrentUserBookings() {
+        User currentUser = requiredLoggedIn();
+
+        List<Booking> result =
+                bookings.findByOwner(currentUser.getUserId());
+
+        result.sort(
+                Comparator.comparing(Booking::getDate)
+                        .thenComparing(Booking::getStartTime)
+                        .thenComparing(Booking::getBookingId)
+        );
+
+        return result;
     }
 
 }
