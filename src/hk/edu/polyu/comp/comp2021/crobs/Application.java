@@ -9,7 +9,6 @@ import hk.edu.polyu.comp.comp2021.crobs.model.CROBS;
 import hk.edu.polyu.comp.comp2021.crobs.view.ConsoleView;
 
 import java.io.BufferedReader;
-import java.io.Console;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;

@@ -19,6 +19,8 @@ public final class ScheduleCommand implements Command {
 
     @Override
     public String execute() {
-        return formatter.formatSchedule(crobs.getWeeklySchedule(roomId, weekStartDate), crobs.getCurrentUser());
+        // TODO: Re-enable when the room model APIs are available.
+        //return formatter.formatSchedule(crobs.getWeeklySchedule(roomId, weekStartDate), crobs.getCurrentUser());
+        throw new UnsupportedOperationException("Waiting for API");
     }
 }

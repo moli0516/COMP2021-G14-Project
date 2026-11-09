@@ -18,7 +18,7 @@ public final class OutputFormatter {
     public String formatRoom(Room room) {
         String features = new TreeSet<String>(room.getFeatures().asSet()).toString();
         return room.getRoomId() + " | " + room.getRoomType().toCommand()
-            + " capacity" + room.getCapacity() + "| features" + features;
+            + " | capacity: " + room.getCapacity() + " | features " + features;
     }
 
     public String formatRooms(List<Room> rooms) {
@@ -68,9 +68,9 @@ public final class OutputFormatter {
             boolean canSeeOwner = viewer.isAdmin() || Objects.equals(viewer.getUserId(), b.getOwnerUserId());
             appendLine(s, b.getBookingId() + " | " + b.getDate() + " "
                     + b.getStartTime() + "-" + b.getEndTime() + " | " + b.getPurpose()
-                    + " | booked by" + (canSeeOwner ? b.getOwnerUserId() : "hidden"));
-            return s.toString();
+                    + " | booked by " + (canSeeOwner ? b.getOwnerUserId() : "hidden"));
         }
+        return s.toString();
     }
         private static void appendLine(StringBuilder s, String line){
             if (s.length()>0){

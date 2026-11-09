@@ -17,7 +17,7 @@ public final class HtmlCommandLogger implements CommandLogger {
         this.writer=Files.newBufferedWriter(this.path, StandardCharsets.UTF_8);
         writer.write("<!DOCTYPE html>");
         writer.newLine();
-        writer.write("<html><head><meta charset=\"UTF-8\"><titles><CROBS Command Log</title></head><body>>");
+        writer.write("<html><head><meta charset=\"UTF-8\"><titles>CROBS Command Log</title></head><body>");
         writer.newLine();
         writer.write("<table border=\"1\">");
         writer.newLine();
