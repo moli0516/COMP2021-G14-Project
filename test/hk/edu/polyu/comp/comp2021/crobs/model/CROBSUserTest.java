@@ -93,4 +93,149 @@ class CROBSUserTest {
         crobs.login("SA001");
         assertThrows(NotFoundException.class, () -> crobs.removeUser("UNKNOWN"));
     }
+
+    @Test
+    void changeUserRole() {
+        CROBS crobs = new CROBS();
+        crobs.login("SA001");
+        User user = crobs.addUser("Alex");
+
+        // Promote regular user to admin.
+        crobs.changeRole(user.getUserId(), UserRole.ADMIN);
+
+        crobs.logout();
+        crobs.login(user.getUserId());
+
+        assertEquals(UserRole.ADMIN, crobs.getCurrentUser().getRole());
+        assertEquals(user.getUserId(), crobs.getCurrentUser().getUserId());
+        assertEquals("Alex", crobs.getCurrentUser().getName());
+
+        // Demote admin to regular user.
+        crobs.logout();
+        crobs.login("SA001");
+
+        crobs.changeRole(user.getUserId(), UserRole.REGULAR);
+
+        crobs.logout();
+        crobs.login(user.getUserId());
+
+        assertEquals(UserRole.REGULAR, crobs.getCurrentUser().getRole());
+        assertEquals(user.getUserId(), crobs.getCurrentUser().getUserId());
+        assertEquals("Alex", crobs.getCurrentUser().getName());
+    }
+
+    @Test
+    void nonSuperAdminCannotChangeUserRole() {
+        CROBS crobs = new CROBS();
+        crobs.login("SA001");
+
+        User admin = crobs.addUser("Alex");
+        User regular = crobs.addUser("Alan");
+
+        crobs.changeRole(admin.getUserId(), UserRole.ADMIN);
+
+        // Ordinary admin cannot promote a regular user.
+        crobs.logout();
+        crobs.login(admin.getUserId());
+
+        assertThrows(AuthorizationException.class,
+                () -> crobs.changeRole(
+                        regular.getUserId(), UserRole.ADMIN));
+
+        // Verify the rejected promotion did not change the role.
+        crobs.logout();
+        crobs.login(regular.getUserId());
+
+        assertEquals(UserRole.REGULAR, crobs.getCurrentUser().getRole());
+
+        // Regular user cannot demote an admin.
+        assertThrows(AuthorizationException.class,
+                () -> crobs.changeRole(
+                        admin.getUserId(), UserRole.REGULAR));
+
+        // Verify the rejected demotion did not change the role.
+        crobs.logout();
+        crobs.login(admin.getUserId());
+
+        assertEquals(UserRole.ADMIN, crobs.getCurrentUser().getRole());
+    }
+    @Test
+    void anonymousUserCannotChangeUserRole() {
+        CROBS crobs = new CROBS();
+        crobs.login("SA001");
+        User user = crobs.addUser("Alex");
+        crobs.logout();
+
+        assertThrows(AuthorizationException.class,
+                () -> crobs.changeRole(
+                        user.getUserId(), UserRole.ADMIN));
+
+        crobs.login(user.getUserId());
+        assertEquals(UserRole.REGULAR, crobs.getCurrentUser().getRole());
+    }
+
+    @Test
+    void changingToSameRoleIsRejectedWithoutChangingUser() {
+        CROBS crobs = new CROBS();
+        crobs.login("SA001");
+        User user = crobs.addUser("Alex");
+
+        // Already regular.
+        assertThrows(ValidationException.class,
+                () -> crobs.changeRole(
+                        user.getUserId(), UserRole.REGULAR));
+
+        crobs.logout();
+        crobs.login(user.getUserId());
+
+        assertEquals(UserRole.REGULAR, crobs.getCurrentUser().getRole());
+        assertEquals("Alex", crobs.getCurrentUser().getName());
+
+        // Promote, then request admin again.
+        crobs.logout();
+        crobs.login("SA001");
+
+        crobs.changeRole(user.getUserId(), UserRole.ADMIN);
+
+        assertThrows(ValidationException.class,
+                () -> crobs.changeRole(
+                        user.getUserId(), UserRole.ADMIN));
+
+        crobs.logout();
+        crobs.login(user.getUserId());
+
+        assertEquals(UserRole.ADMIN, crobs.getCurrentUser().getRole());
+        assertEquals("Alex", crobs.getCurrentUser().getName());
+    }
+    @Test
+    void adminUserCannotBeRemoved() {
+        CROBS crobs = new CROBS();
+        crobs.login("SA001");
+
+        User target = crobs.addUser("Alex");
+        crobs.changeRole(target.getUserId(), UserRole.ADMIN);
+
+        assertThrows(AuthorizationException.class,
+                () -> crobs.removeUser(target.getUserId()));
+
+        crobs.logout();
+        crobs.login(target.getUserId());
+
+        assertEquals(UserRole.ADMIN, crobs.getCurrentUser().getRole());
+        assertEquals("Alex", crobs.getCurrentUser().getName());
+    }
+
+    @Test
+    void nullAndBlankRemovalIdsAreRejected() {
+        CROBS crobs = new CROBS();
+        crobs.login("SA001");
+
+        assertThrows(ValidationException.class,
+                () -> crobs.removeUser(null));
+
+        assertThrows(ValidationException.class,
+                () -> crobs.removeUser(" "));
+
+        assertEquals("SA001", crobs.getCurrentUser().getUserId());
+    }
 }
