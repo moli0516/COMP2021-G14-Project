@@ -154,16 +154,17 @@ public class CROBS {
     }
 
     public void deleteRoom(String roomId) {
-    requiredAdmin();
-    rooms.require(roomId);
+        requiredAdmin();
+        rooms.require(roomId);
 
-    LocalDate today = LocalDate.now();
-    for (Booking booking : bookings.findByRoom(roomId)) {
-        if (!booking.isCancelled()
-                && !booking.getDate().isBefore(today)) {
-            bookings.replace(booking.cancel());
+        LocalDate today = LocalDate.now();
+        for (Booking booking : bookings.findByRoom(roomId)) {
+            if (!booking.isCancelled()
+                    && !booking.getDate().isBefore(today)) {
+                bookings.replace(booking.cancel());
+            }
         }
-    }
+        rooms.remove(roomId);
     }
 
     public Booking createBooking(String roomId, LocalDate date,

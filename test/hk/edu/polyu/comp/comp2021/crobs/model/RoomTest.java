@@ -63,6 +63,6 @@ class RoomTest {
 
         assertEquals("R001", updated.getRoomId());
         assertEquals(20, updated.getCapacity());
-        assertEquals(FeatureSet.parse("whiteboard"), updated.getFeatures());
+        assertEquals(FeatureSet.parse("whiteboard").asSet(), updated.getFeatures().asSet());
     }
 }
