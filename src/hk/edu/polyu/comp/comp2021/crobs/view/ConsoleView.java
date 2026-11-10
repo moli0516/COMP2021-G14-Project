@@ -15,15 +15,16 @@ public final class ConsoleView {
 
     /** Return null on EOF. The application owns resource lifetime. */
     public String readLine() throws IOException {
-        throw new UnsupportedOperationException("TODO: implement input");
+        return input.readLine();
     }
 
     public void showPrompt() {
-        // TODO: print and flush the prompt.
-        throw new UnsupportedOperationException("TODO: implement prompt");
+        output.print("CROBS>> ");
+        output.flush();
     }
 
     public void display(String message) {
-        throw new UnsupportedOperationException("TODO: implement output");
+        output.println(message);
+        output.flush();
     }
 }

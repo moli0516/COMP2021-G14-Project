@@ -3,14 +3,33 @@ package hk.edu.polyu.comp.comp2021.crobs.model;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Collections;
 
 public final class FeatureSet {
     private final Set<String> values;
 
     public FeatureSet(Set<String> values) {
-        // TODO: validate/normalize tokens consistently with parse().
-        this.values = Collections.unmodifiableSet(new HashSet<>(values));
+        if (values == null) {
+            throw new IllegalArgumentException("Features must not be null");
+        }
+
+        Set<String> normalizedValues = new HashSet<>();
+        for (String value : values) {
+            if (value == null) {
+                throw new IllegalArgumentException("Feature must not be null");
+            }
+
+            String normalized = value.replaceAll("[^a-zA-Z]", "").toLowerCase(Locale.ROOT);
+
+            if (normalized.isEmpty()) {
+                throw new IllegalArgumentException("Feature must contain at least one letter");
+            }
+
+            normalizedValues.add(normalized);
+        }
+
+        this.values = Collections.unmodifiableSet(normalizedValues);
     }
 
     public static FeatureSet parse(String text){
@@ -28,6 +47,6 @@ public final class FeatureSet {
     }
 
     public boolean containsAll(FeatureSet required) {
-        return required.asSet().equals(this.values);
+        return this.values.containsAll(required.asSet());
     }
 }

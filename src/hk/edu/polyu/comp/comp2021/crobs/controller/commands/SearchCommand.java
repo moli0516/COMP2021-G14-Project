@@ -2,6 +2,7 @@ package hk.edu.polyu.comp.comp2021.crobs.controller.commands;
 
 import hk.edu.polyu.comp.comp2021.crobs.controller.Command;
 import hk.edu.polyu.comp.comp2021.crobs.model.CROBS;
+import hk.edu.polyu.comp.comp2021.crobs.view.OutputFormatter;
 import java.util.Set;
 import java.util.Collections;
 import java.util.HashSet;
@@ -9,6 +10,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 public final class SearchCommand implements Command {
+    private final OutputFormatter formatter=new OutputFormatter();
     private final CROBS crobs;
     private final LocalDate date;
     private final LocalTime startTime;
@@ -27,7 +29,7 @@ public final class SearchCommand implements Command {
 
     @Override
     public String execute() {
-        // TODO: call the corresponding CROBS API and format its result.
-        throw new UnsupportedOperationException("TODO: implement");
+        return formatter.formatRooms(crobs.searchRooms(date,startTime,endTime,minCapacity,features));
+
     }
 }

@@ -14,7 +14,7 @@ public final class DeleteBookingCommand implements Command {
 
     @Override
     public String execute() {
-        // TODO: call the corresponding CROBS API and format its result.
-        throw new UnsupportedOperationException("TODO: implement");
+        crobs.deleteBooking(bookingId);
+        return "Booking deleted: "+bookingId;
     }
 }
