@@ -20,8 +20,6 @@ public final class ModifyRoomCommand implements Command {
 
     @Override
     public String execute() {
-        // TODO: Re-enable when the room model APIs are available.
-        //return "Room updated: " + formatter.formatRoom(crobs.modifyRoom(roomId, field, newValue));
-        throw new UnsupportedOperationException("waiting for API");
+        return "Room updated: " + formatter.formatRoom(crobs.modifyRoom(roomId, field, newValue));
     }
 }

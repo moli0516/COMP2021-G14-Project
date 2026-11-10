@@ -7,8 +7,8 @@ import hk.edu.polyu.comp.comp2021.crobs.view.OutputFormatter;
 
 public final class ScheduleCommand implements Command {
     private final CROBS crobs;
-    private final String roomId;
     private final LocalDate weekStartDate;
+    private final String roomId;
     private final OutputFormatter formatter= new OutputFormatter();
 
     public ScheduleCommand(CROBS crobs, String roomId, LocalDate weekStartDate) {
@@ -19,8 +19,7 @@ public final class ScheduleCommand implements Command {
 
     @Override
     public String execute() {
-        // TODO: Re-enable when the room model APIs are available.
-        //return formatter.formatSchedule(crobs.getWeeklySchedule(roomId, weekStartDate), crobs.getCurrentUser());
-        throw new UnsupportedOperationException("Waiting for API");
+        return formatter.formatSchedule(crobs.getWeeklySchedule(roomId, weekStartDate), crobs.getCurrentUser());
+
     }
 }

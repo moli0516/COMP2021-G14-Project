@@ -242,6 +242,55 @@ public class CROBS {
         return updated;
     }
 
+    public Room modifyRoom(String roomId, String field, String newValue) {
+        requiredAdmin();
+
+        Room existing = rooms.require(roomId);
+
+        if (field == null || field.trim().isEmpty()) {
+            throw new ValidationException("Room field must not be blank");
+        }
+        if (newValue == null || newValue.trim().isEmpty()) {
+            throw new ValidationException("New value must not be blank");
+        }
+
+        RoomType type = existing.getRoomType();
+        int capacity = existing.getCapacity();
+        Set<String> features = existing.getFeatures().asSet();
+
+        switch (field.trim()) {
+            case "roomType":
+                type = RoomType.fromCommand(newValue.trim());
+                break;
+
+            case "capacity":
+                try {
+                    capacity = Integer.parseInt(newValue.trim());
+                } catch (NumberFormatException e) {
+                    throw new ValidationException(
+                            "Capacity must be a valid integer");
+                }
+                if (capacity <= 0) {
+                    throw new ValidationException("Capacity must be positive");
+                }
+                break;
+
+            case "features":
+                try {
+                    features = FeatureSet.parse(newValue.trim()).asSet();
+                } catch (IllegalArgumentException e) {
+                    throw new ValidationException("Invalid room features");
+                }
+                break;
+
+            default:
+                throw new ValidationException(
+                        "Unknown room field. Use roomType, capacity or features");
+        }
+
+        return modifyRoom(roomId, type, capacity, features);
+    }
+
     public Room getRoom(String roomId) {
         requiredLoggedIn();
         return rooms.require(roomId);
@@ -304,32 +353,45 @@ public class CROBS {
         return result;
     }
 
-    public List<Booking> getWeeklySchedule(LocalDate weekStart) {
-        User user = requiredLoggedIn();
+    public List<Room> searchRooms(
+            LocalDate date,
+            LocalTime startTime,
+            LocalTime endTime,
+            int minCapacity,
+            Set<String> features) {
 
-        if (weekStart == null) {
+        return searchRooms(
+                null,
+                minCapacity,
+                features,
+                date,
+                startTime,
+                endTime);
+    }
+
+    public List<Booking> getWeeklySchedule(
+            String roomId,
+            LocalDate weekStartDate) {
+
+        requiredLoggedIn();
+        rooms.require(roomId);
+
+        if (weekStartDate == null) {
             throw new ValidationException("Week start date must not be null");
         }
 
-        LocalDate weekEnd = weekStart.plusDays(7);
+        LocalDate weekEndExclusive = weekStartDate.plusDays(7);
         List<Booking> result = new ArrayList<>();
 
-        for (Booking booking : bookings.findAll()) {
-            boolean inWeek = !booking.getDate().isBefore(weekStart)
-                    && booking.getDate().isBefore(weekEnd);
+        for (Booking booking : bookings.findByRoom(roomId)) {
+            boolean inWeek = !booking.getDate().isBefore(weekStartDate) && booking.getDate().isBefore(weekEndExclusive);
 
-            // Regular users see their own bookings; admins see all bookings.
-            boolean visibleToUser = user.isAdmin()
-                    || Objects.equals(user.getUserId(), booking.getOwnerUserId());
-
-            if (inWeek && visibleToUser && !booking.isCancelled()) {
+            if (inWeek && !booking.isCancelled()) {
                 result.add(booking);
             }
         }
 
-        result.sort(Comparator.comparing(Booking::getDate)
-                .thenComparing(Booking::getStartTime)
-                .thenComparing(Booking::getBookingId));
+        result.sort(Comparator.comparing(Booking::getDate).thenComparing(Booking::getStartTime).thenComparing(Booking::getBookingId));
 
         return result;
     }

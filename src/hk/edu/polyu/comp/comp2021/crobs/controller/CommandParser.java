@@ -43,10 +43,10 @@ public final class CommandParser {
             case "addRoom":
                 checkExactly(words, 4);
                 return new AddRoomCommand(crobs, parseRoomType(words[1]),parseNumber(words[2]), parseFeatures(words[3]));
-            // TODO: Re-enable when the room model APIs are available.
-            //case "modifyRoom":
-            //    checkExactly(words, 4);
-            //    return new ModifyRoomCommand(crobs,words[1],words[2],words[3]);
+
+            case "modifyRoom":
+                checkExactly(words, 4);
+                return new ModifyRoomCommand(crobs,words[1],words[2],words[3]);
             case "deleteRoom":
                 checkExactly(words, 2);
                 return new DeleteRoomCommand(crobs, words[1]);
@@ -61,20 +61,19 @@ public final class CommandParser {
             case "deleteBooking":
                 checkExactly(words, 2);
                 return new DeleteBookingCommand(crobs, words[1]);
-            // TODO: Re-enable when the room model APIs are available.
-            //case "search":
-            //    checkExactly(words, 6);
-            //    return new SearchCommand(crobs, parseDate(words[1]), parseTime(words[2]), parseTime(words[3]),
-            //    parseNumber(words[4]), parseFeatures(words[5]));
-            //case "schedule":
-            //    checkExactly(words, 3);
-            //    return new ScheduleCommand(crobs,words[1],parseDate(words[2]));
-            //case "listRoom":
-            //    checkExactly(words, 2);
-            //    return new ListRoomCommand(crobs, words[1]);
-            //case "listAllRooms":
-            //    checkExactly(words, 1);
-            //    return new ListAllRoomsCommand(crobs);
+            case "search":
+                checkExactly(words, 6);
+                return new SearchCommand(crobs, parseDate(words[1]), parseTime(words[2]), parseTime(words[3]),
+                parseNumber(words[4]), parseFeatures(words[5]));
+            case "schedule":
+                checkExactly(words, 3);
+                return new ScheduleCommand(crobs,words[1],parseDate(words[2]));
+            case "listRoom":
+                checkExactly(words, 2);
+                return new ListRoomCommand(crobs, words[1]);
+            case "listAllRooms":
+                checkExactly(words, 1);
+                return new ListAllRoomsCommand(crobs);
             case "listBookings":
                 checkExactly(words, 1);
                 return new ListBookingsCommand(crobs);

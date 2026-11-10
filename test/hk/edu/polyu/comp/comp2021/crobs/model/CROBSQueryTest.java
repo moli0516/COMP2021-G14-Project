@@ -54,6 +54,7 @@ class CROBSQueryTest {
                 Collections.<String>emptySet());
 
         LocalDate weekStart = LocalDate.now().plusDays(1);
+
         Booking inWeek = crobs.createBooking(
                 room.getRoomId(),
                 weekStart.plusDays(2),
@@ -68,9 +69,13 @@ class CROBSQueryTest {
                 LocalTime.of(10, 0),
                 "Outside week");
 
-        List<Booking> schedule = crobs.getWeeklySchedule(weekStart);
+        List<Booking> schedule = crobs.getWeeklySchedule(
+                room.getRoomId(),
+                weekStart);
 
         assertEquals(1, schedule.size());
-        assertEquals(inWeek.getBookingId(), schedule.get(0).getBookingId());
+        assertEquals(
+                inWeek.getBookingId(),
+                schedule.get(0).getBookingId());
     }
 }
