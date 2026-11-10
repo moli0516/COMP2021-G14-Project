@@ -8,6 +8,8 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Objects;
 import java.util.Set;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -151,10 +153,17 @@ public class CROBS {
         return room;
     }
 
-    public void deleteRoom(String roomId){
-        requiredAdmin();
-        
-        rooms.remove(roomId);
+    public void deleteRoom(String roomId) {
+    requiredAdmin();
+    rooms.require(roomId);
+
+    LocalDate today = LocalDate.now();
+    for (Booking booking : bookings.findByRoom(roomId)) {
+        if (!booking.isCancelled()
+                && !booking.getDate().isBefore(today)) {
+            bookings.replace(booking.cancel());
+        }
+    }
     }
 
     public Booking createBooking(String roomId, LocalDate date,
@@ -220,5 +229,108 @@ public class CROBS {
 
         return result;
     }
+    
+    public Room modifyRoom(String roomId, RoomType type, int capacity,
+                        Set<String> features) {
+        requiredAdmin();
 
+        Room existing = rooms.require(roomId);
+        Room updated = existing.withDetails(
+                type, capacity, new FeatureSet(features));
+        rooms.replace(updated);
+        return updated;
+    }
+
+    public Room getRoom(String roomId) {
+        requiredLoggedIn();
+        return rooms.require(roomId);
+    }
+
+    public List<Room> getAllRooms() {
+        requiredLoggedIn();
+
+        List<Room> result = rooms.findAll();
+        result.sort(Comparator.comparing(Room::getRoomId));
+        return result;
+    }
+
+    public List<Room> searchRooms(RoomType type, int minCapacity,
+                                Set<String> requiredFeatures,
+                                LocalDate date, LocalTime startTime,
+                                LocalTime endTime) {
+        requiredLoggedIn();
+
+        if (minCapacity < 0) {
+            throw new ValidationException("Minimum capacity must not be negative");
+        }
+        if (date == null) {
+            throw new ValidationException("Date must not be null");
+        }
+        if (startTime == null || endTime == null|| !startTime.isBefore(endTime)) {
+            throw new ValidationException("Start time must be before end time");
+        }
+
+        FeatureSet required = new FeatureSet(
+                requiredFeatures == null ? Collections.<String>emptySet() : requiredFeatures);
+
+        List<Room> result = new ArrayList<>();
+        for (Room room : rooms.findAll()) {
+            if (type != null && room.getRoomType() != type) {
+                continue;
+            }
+            if (room.getCapacity() < minCapacity) {
+                continue;
+            }
+
+            if (!room.getFeatures().asSet().containsAll(required.asSet())) {
+                continue;
+            }
+
+            boolean available = true;
+            for (Booking booking : bookings.findByRoom(room.getRoomId())) {
+                if (!booking.isCancelled() && booking.getDate().equals(date) && booking.overlaps(startTime, endTime)) {
+                    available = false;
+                    break;
+                }
+            }
+
+            if (available) {
+                result.add(room);
+            }
+        }
+
+        result.sort(Comparator.comparing(Room::getRoomId));
+        return result;
+    }
+
+    public List<Booking> getWeeklySchedule(LocalDate weekStart) {
+        User user = requiredLoggedIn();
+
+        if (weekStart == null) {
+            throw new ValidationException("Week start date must not be null");
+        }
+
+        LocalDate weekEnd = weekStart.plusDays(7);
+        List<Booking> result = new ArrayList<>();
+
+        for (Booking booking : bookings.findAll()) {
+            boolean inWeek = !booking.getDate().isBefore(weekStart)
+                    && booking.getDate().isBefore(weekEnd);
+
+            // Regular users see their own bookings; admins see all bookings.
+            boolean visibleToUser = user.isAdmin()
+                    || Objects.equals(user.getUserId(), booking.getOwnerUserId());
+
+            if (inWeek && visibleToUser && !booking.isCancelled()) {
+                result.add(booking);
+            }
+        }
+
+        result.sort(Comparator.comparing(Booking::getDate)
+                .thenComparing(Booking::getStartTime)
+                .thenComparing(Booking::getBookingId));
+
+        return result;
+    }
 }
+

@@ -11,11 +11,11 @@ public final class ValidationResult {
     }
 
     public static ValidationResult success() {
-        throw new UnsupportedOperationException("TODO: construct success result");
+        return new ValidationResult(true, null);
     }
 
     public static ValidationResult failure(String message) {
-        throw new UnsupportedOperationException("TODO: construct failure result");
+        return new ValidationResult(false, message);
     }
 
     public boolean isValid() { return valid; }
