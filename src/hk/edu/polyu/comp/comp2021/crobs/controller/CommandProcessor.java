@@ -1,15 +1,27 @@
 package hk.edu.polyu.comp.comp2021.crobs.controller;
+import  hk.edu.polyu.comp.comp2021.crobs.model.exceptions.CrobsException;
 
 public final class CommandProcessor {
     private final CommandParser parser;
+    private boolean quitRequest;
 
     public CommandProcessor(CommandParser parser) {
         this.parser = parser;
     }
 
     public String process(String commandLine) {
-        // TODO: parse, execute and translate expected input/domain errors.
-        // Keep raw-line logging in the application loop; avoid logging twice.
-        throw new UnsupportedOperationException("TODO: implement dispatch");
+        try{
+            Command command= parser.parse(commandLine);
+            String result=command.execute();
+            if(command.isQuit()){
+                quitRequest=true;
+            }
+            return result;
+        }catch(CrobsException e){
+            return "Error: "+e.getMessage();
+        }
+    }
+    public boolean isQuitRequested(){
+        return quitRequest;
     }
 }

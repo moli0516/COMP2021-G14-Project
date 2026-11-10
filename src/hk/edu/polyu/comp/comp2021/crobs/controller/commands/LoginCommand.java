@@ -2,10 +2,12 @@ package hk.edu.polyu.comp.comp2021.crobs.controller.commands;
 
 import hk.edu.polyu.comp.comp2021.crobs.controller.Command;
 import hk.edu.polyu.comp.comp2021.crobs.model.CROBS;
+import hk.edu.polyu.comp.comp2021.crobs.view.OutputFormatter;
 
 public final class LoginCommand implements Command {
     private final CROBS crobs;
     private final String userId;
+    private final OutputFormatter formatter=new OutputFormatter();
 
     public LoginCommand(CROBS crobs, String userId) {
         this.crobs = crobs;
@@ -14,7 +16,7 @@ public final class LoginCommand implements Command {
 
     @Override
     public String execute() {
-        // TODO: call the corresponding CROBS API and format its result.
-        throw new UnsupportedOperationException("TODO: implement");
+        crobs.login(userId);
+        return "Logged in as "+formatter.formatUser(crobs.getCurrentUser());
     }
 }

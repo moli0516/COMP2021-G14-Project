@@ -2,6 +2,7 @@ package hk.edu.polyu.comp.comp2021.crobs.controller.commands;
 
 import hk.edu.polyu.comp.comp2021.crobs.controller.Command;
 import hk.edu.polyu.comp.comp2021.crobs.model.CROBS;
+import hk.edu.polyu.comp.comp2021.crobs.view.OutputFormatter;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
@@ -12,6 +13,7 @@ public final class BookCommand implements Command {
     private final LocalTime startTime;
     private final LocalTime endTime;
     private final String purpose;
+    private final OutputFormatter format= new  OutputFormatter();
 
     public BookCommand(CROBS crobs, String roomId, LocalDate date, LocalTime startTime, LocalTime endTime, String purpose) {
         this.crobs = crobs;
@@ -24,7 +26,6 @@ public final class BookCommand implements Command {
 
     @Override
     public String execute() {
-        // TODO: call the corresponding CROBS API and format its result.
-        throw new UnsupportedOperationException("TODO: implement");
+        return "Booking created: "+format.formatBooking(crobs.createBooking(roomId,date, startTime,endTime, purpose));
     }
 }

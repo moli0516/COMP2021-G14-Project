@@ -17,7 +17,7 @@ public final class ChangeRoleCommand implements Command {
 
     @Override
     public String execute() {
-        // TODO: call the corresponding CROBS API and format its result.
-        throw new UnsupportedOperationException("TODO: implement");
+        crobs.changeRole(targetUserId, newRole);
+        return "Role of " + targetUserId + " changes to " + newRole + ".";
     }
 }

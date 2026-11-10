@@ -14,7 +14,7 @@ public final class RemoveUserCommand implements Command {
 
     @Override
     public String execute() {
-        // TODO: call the corresponding CROBS API and format its result.
-        throw new UnsupportedOperationException("TODO: implement");
+        crobs.removeUser(targetUserId);
+        return "Removed: "+targetUserId;
     }
 }
