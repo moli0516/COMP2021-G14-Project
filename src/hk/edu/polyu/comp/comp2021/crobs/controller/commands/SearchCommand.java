@@ -29,8 +29,7 @@ public final class SearchCommand implements Command {
 
     @Override
     public String execute() {
-        // TODO: Re-enable when the room model APIs are available.
-        //return formatter.formatRooms(crobs.searchRooms(date,startTime,endTime,minCapacity,features));
-        throw new UnsupportedOperationException("Waiting for API.");
+        return formatter.formatRooms(crobs.searchRooms(date,startTime,endTime,minCapacity,features));
+
     }
 }

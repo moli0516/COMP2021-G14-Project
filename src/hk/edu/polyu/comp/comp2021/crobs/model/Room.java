@@ -1,5 +1,7 @@
 package hk.edu.polyu.comp.comp2021.crobs.model;
 
+import hk.edu.polyu.comp.comp2021.crobs.model.exceptions.ValidationException;
+
 public final class Room {
     private final String roomId;
     private final RoomType roomType;
@@ -7,7 +9,18 @@ public final class Room {
     private final FeatureSet features;
 
     public Room(String roomId, RoomType roomType, int capacity, FeatureSet features) {
-        // TODO: enforce nonblank ID, nonnull values, positive capacity.
+        if (roomId == null || roomId.trim().isEmpty()) {
+            throw new ValidationException("Room ID must not be blank");
+        }
+        if (roomType == null) {
+            throw new ValidationException("Room type must not be null");
+        }
+        if (capacity <= 0) {
+            throw new ValidationException("Capacity must be positive");
+        }
+        if (features == null) {
+            throw new ValidationException("Features must not be null");
+        }
         this.roomId = roomId;
         this.roomType = roomType;
         this.capacity = capacity;
@@ -20,10 +33,14 @@ public final class Room {
     public FeatureSet getFeatures() { return features; }
 
     public boolean supports(int minCapacity, FeatureSet requiredFeatures) {
-        throw new UnsupportedOperationException("TODO: capacity and feature match");
+         if (capacity < minCapacity) {
+            return false;
+        }
+        return requiredFeatures == null || features.containsAll(requiredFeatures);
     }
 
+
     public Room withDetails(RoomType type, int newCapacity, FeatureSet newFeatures) {
-        throw new UnsupportedOperationException("TODO: validated replacement with same ID");
+        return new Room(roomId, type, newCapacity, newFeatures);
     }
 }

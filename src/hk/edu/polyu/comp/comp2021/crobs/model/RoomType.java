@@ -1,5 +1,7 @@
 package hk.edu.polyu.comp.comp2021.crobs.model;
 
+import hk.edu.polyu.comp.comp2021.crobs.model.exceptions.ValidationException;
+
 public enum RoomType {
     LECTURE_THEATRE("lectureTheatre"),
     COMPUTER_LAB("computerLab"),
@@ -17,6 +19,14 @@ public enum RoomType {
     }
 
     public static RoomType fromCommand(String text) {
-        throw new UnsupportedOperationException("TODO: validate and parse room type");
+        if (text != null) {
+            for (RoomType type : values()) {
+                if (type.commandName.equals(text)) {
+                    return type;
+                }
+            }
+        }
+
+        throw new ValidationException("Unsupported room type: " + text);
     }
 }

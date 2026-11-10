@@ -8,6 +8,8 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Objects;
 import java.util.Set;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -151,9 +153,17 @@ public class CROBS {
         return room;
     }
 
-    public void deleteRoom(String roomId){
+    public void deleteRoom(String roomId) {
         requiredAdmin();
-        
+        rooms.require(roomId);
+
+        LocalDate today = LocalDate.now();
+        for (Booking booking : bookings.findByRoom(roomId)) {
+            if (!booking.isCancelled()
+                    && !booking.getDate().isBefore(today)) {
+                bookings.replace(booking.cancel());
+            }
+        }
         rooms.remove(roomId);
     }
 
@@ -220,5 +230,170 @@ public class CROBS {
 
         return result;
     }
+    
+    public Room modifyRoom(String roomId, RoomType type, int capacity,
+                        Set<String> features) {
+        requiredAdmin();
 
+        Room existing = rooms.require(roomId);
+        Room updated = existing.withDetails(
+                type, capacity, new FeatureSet(features));
+        rooms.replace(updated);
+        return updated;
+    }
+
+    public Room modifyRoom(String roomId, String field, String newValue) {
+        requiredAdmin();
+
+        Room existing = rooms.require(roomId);
+
+        if (field == null || field.trim().isEmpty()) {
+            throw new ValidationException("Room field must not be blank");
+        }
+        if (newValue == null || newValue.trim().isEmpty()) {
+            throw new ValidationException("New value must not be blank");
+        }
+
+        RoomType type = existing.getRoomType();
+        int capacity = existing.getCapacity();
+        Set<String> features = existing.getFeatures().asSet();
+
+        switch (field.trim()) {
+            case "roomType":
+                type = RoomType.fromCommand(newValue.trim());
+                break;
+
+            case "capacity":
+                try {
+                    capacity = Integer.parseInt(newValue.trim());
+                } catch (NumberFormatException e) {
+                    throw new ValidationException(
+                            "Capacity must be a valid integer");
+                }
+                if (capacity <= 0) {
+                    throw new ValidationException("Capacity must be positive");
+                }
+                break;
+
+            case "features":
+                try {
+                    features = FeatureSet.parse(newValue.trim()).asSet();
+                } catch (IllegalArgumentException e) {
+                    throw new ValidationException("Invalid room features");
+                }
+                break;
+
+            default:
+                throw new ValidationException(
+                        "Unknown room field. Use roomType, capacity or features");
+        }
+
+        return modifyRoom(roomId, type, capacity, features);
+    }
+
+    public Room getRoom(String roomId) {
+        requiredLoggedIn();
+        return rooms.require(roomId);
+    }
+
+    public List<Room> getAllRooms() {
+        requiredLoggedIn();
+
+        List<Room> result = rooms.findAll();
+        result.sort(Comparator.comparing(Room::getRoomId));
+        return result;
+    }
+
+    public List<Room> searchRooms(RoomType type, int minCapacity,
+                                Set<String> requiredFeatures,
+                                LocalDate date, LocalTime startTime,
+                                LocalTime endTime) {
+        requiredLoggedIn();
+
+        if (minCapacity < 0) {
+            throw new ValidationException("Minimum capacity must not be negative");
+        }
+        if (date == null) {
+            throw new ValidationException("Date must not be null");
+        }
+        if (startTime == null || endTime == null|| !startTime.isBefore(endTime)) {
+            throw new ValidationException("Start time must be before end time");
+        }
+
+        FeatureSet required = new FeatureSet(
+                requiredFeatures == null ? Collections.<String>emptySet() : requiredFeatures);
+
+        List<Room> result = new ArrayList<>();
+        for (Room room : rooms.findAll()) {
+            if (type != null && room.getRoomType() != type) {
+                continue;
+            }
+            if (room.getCapacity() < minCapacity) {
+                continue;
+            }
+
+            if (!room.getFeatures().asSet().containsAll(required.asSet())) {
+                continue;
+            }
+
+            boolean available = true;
+            for (Booking booking : bookings.findByRoom(room.getRoomId())) {
+                if (!booking.isCancelled() && booking.getDate().equals(date) && booking.overlaps(startTime, endTime)) {
+                    available = false;
+                    break;
+                }
+            }
+
+            if (available) {
+                result.add(room);
+            }
+        }
+
+        result.sort(Comparator.comparing(Room::getRoomId));
+        return result;
+    }
+
+    public List<Room> searchRooms(
+            LocalDate date,
+            LocalTime startTime,
+            LocalTime endTime,
+            int minCapacity,
+            Set<String> features) {
+
+        return searchRooms(
+                null,
+                minCapacity,
+                features,
+                date,
+                startTime,
+                endTime);
+    }
+
+    public List<Booking> getWeeklySchedule(
+            String roomId,
+            LocalDate weekStartDate) {
+
+        requiredLoggedIn();
+        rooms.require(roomId);
+
+        if (weekStartDate == null) {
+            throw new ValidationException("Week start date must not be null");
+        }
+
+        LocalDate weekEndExclusive = weekStartDate.plusDays(7);
+        List<Booking> result = new ArrayList<>();
+
+        for (Booking booking : bookings.findByRoom(roomId)) {
+            boolean inWeek = !booking.getDate().isBefore(weekStartDate) && booking.getDate().isBefore(weekEndExclusive);
+
+            if (inWeek && !booking.isCancelled()) {
+                result.add(booking);
+            }
+        }
+
+        result.sort(Comparator.comparing(Booking::getDate).thenComparing(Booking::getStartTime).thenComparing(Booking::getBookingId));
+
+        return result;
+    }
 }
+

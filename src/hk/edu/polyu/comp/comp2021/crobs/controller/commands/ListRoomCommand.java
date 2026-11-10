@@ -16,8 +16,6 @@ public final class ListRoomCommand implements Command {
 
     @Override
     public String execute() {
-        //TODO: Re-enable when the room model APIs are available.
-        //return formatter.formatRoom(crobs.getRoom(roomId));
-        throw new UnsupportedOperationException("Waiting for API.");
+        return formatter.formatRoom(crobs.getRoom(roomId));
     }
 }
