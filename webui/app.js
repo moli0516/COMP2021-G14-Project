@@ -19,7 +19,7 @@ function parseOptions(output,kind){
  const text=output.trim();
  if(/^Error:/i.test(text))throw new Error(text);
  const empty=kind==="room"
-     ? /^(?:No rooms(?: found| available)?\.?|No available rooms\.?)$/i
+     ? /^(?:No rooms(?: were)?(?: found| available)?|No available rooms)\.?$/i
      : /^No bookings(?: found)?\.?$/i;
  if(empty.test(text))return [];
  if(!text)throw new Error("Empty response");
