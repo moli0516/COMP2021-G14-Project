@@ -30,28 +30,42 @@ public final class Application {
      * @param args {@code -html <file> -txt <file>}
      */
     public static void main(String[] args) {
-        Path htmlPath=null;
-        Path txtPath=null;
-        try{
-            if(args.length==4){
-                for(int i=0;i<4;i+=2){
-                    String flag=args[i];
-                    String value=args[i+1];
-                    if(value.trim().isEmpty()){
+        Path htmlPath = null;
+        Path txtPath = null;
+
+        try {
+            if (args.length == 4) {
+                for (int i = 0; i < 4; i += 2) {
+                    String flag = args[i];
+                    String value = args[i + 1];
+
+                    if (value.trim().isEmpty()) {
                         break;
                     }
-                    if(flag.equals("-html")&&htmlPath==null){
-                        htmlPath=Paths.get(value).toAbsolutePath().normalize();
+
+                    boolean isHtml = "-html".equals(flag) && htmlPath == null;
+                    boolean isTxt = "-txt".equals(flag) && txtPath == null;
+
+                    if (!isHtml && !isTxt) {
+                        break;
                     }
-                    else if(flag.equals("-txt")&&txtPath==null){
-                        txtPath=Paths.get(value).toAbsolutePath().normalize();
+
+                    Path path = Paths.get(value).toAbsolutePath().normalize();
+
+                    if (isHtml) {
+                        htmlPath = path;
+                    } else {
+                        txtPath = path;
                     }
                 }
             }
-        }catch(InvalidPathException e){
-            htmlPath=null;
+        } catch (InvalidPathException e) {
+            System.err.println(USAGE);
+            System.exit(1);
+            return;
         }
-        if(htmlPath==null||txtPath==null){
+
+        if (htmlPath == null || txtPath == null) {
             System.err.println(USAGE);
             System.exit(1);
             return;
