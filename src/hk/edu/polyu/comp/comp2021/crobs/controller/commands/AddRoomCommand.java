@@ -7,13 +7,26 @@ import hk.edu.polyu.comp.comp2021.crobs.view.OutputFormatter;
 import java.util.Set;
 import java.util.Collections;
 import java.util.HashSet;
-
+/**
+ * 
+ * AddRoomCommand
+ * Command for {@code addRoom}: adds a new room.
+ */
 public final class AddRoomCommand implements Command {
     private final CROBS crobs;
     private final RoomType roomType;
     private final int capacity;
     private final Set<String> features;
     private final OutputFormatter formatter = new OutputFormatter();
+
+    /**
+     * Creates command with its parsed arguments.
+     * 
+     * @param crobs the system model
+     * @param roomType the room type
+     * @param capacity the room capacity
+     * @param features the room features
+     */
 
     public AddRoomCommand(CROBS crobs, RoomType roomType, int capacity, Set<String> features) {
         this.crobs = crobs;

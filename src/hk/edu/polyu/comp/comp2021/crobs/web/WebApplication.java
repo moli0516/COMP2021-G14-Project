@@ -20,8 +20,20 @@ import java.util.UUID;
 
 /** Local single-session GUI adapter. Run from the repository root. */
 public final class WebApplication {
+    /**
+     * Prevents instantiation of this application entry point.
+     */
     private WebApplication() { }
 
+    /**
+     * Starts a loopback-only HTTP UI on port 8080 using assets under {@code webui/}.
+     * All browser tabs share one CROBS login session. Commands and log writes are
+     * serialized; a quit command or an I/O failure signals server shutdown.
+     *
+     * @param args exactly {@code -html <html-log-path> -txt <text-log-path>}
+     * @throws IllegalArgumentException if the argument layout is invalid or the log paths refer to the same file
+     * @throws IOException if assets, log files, or the HTTP server cannot be accessed
+     */
     public static void main(String[] args) throws IOException {
         if (args.length != 4 || !"-html".equals(args[0]) || !"-txt".equals(args[2])) {
             throw new IllegalArgumentException("Usage: WebApplication -html file -txt file");
@@ -109,6 +121,13 @@ public final class WebApplication {
         }
     }
 
+    /**
+     * Reads the request body as UTF-8, rejecting a payload larger than 8192 bytes.
+     *
+     * @param exchange the exchange providing the request body
+     * @return the decoded body; nonblank and single-line checks are performed by the caller
+     * @throws IOException if reading fails or the size limit is exceeded
+     */
     private static String readCommand(HttpExchange exchange) throws IOException {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         try (InputStream in = exchange.getRequestBody()) {
@@ -122,6 +141,15 @@ public final class WebApplication {
         return new String(bytes.toByteArray(), StandardCharsets.UTF_8);
     }
 
+    /**
+     * Sends a UTF-8 response with no-store, content-type, and security headers.
+     *
+     * @param exchange the exchange receiving the response
+     * @param status the HTTP response status
+     * @param type the MIME type without a charset
+     * @param body the non-null response text
+     * @throws IOException if headers or response bytes cannot be written
+     */
     private static void send(HttpExchange exchange, int status, String type, String body) throws IOException {
         byte[] bytes = body.getBytes(StandardCharsets.UTF_8);
         exchange.getResponseHeaders().set("Content-Type", type + "; charset=utf-8");

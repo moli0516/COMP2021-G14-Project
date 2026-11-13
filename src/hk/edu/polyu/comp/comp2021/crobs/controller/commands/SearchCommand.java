@@ -9,6 +9,9 @@ import java.util.HashSet;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+/**
+ * Command for {@code search}: finds rooms that are free in a time slot and meet the capacity and feature needs.
+ */
 public final class SearchCommand implements Command {
     private final OutputFormatter formatter=new OutputFormatter();
     private final CROBS crobs;
@@ -18,6 +21,16 @@ public final class SearchCommand implements Command {
     private final int minCapacity;
     private final Set<String> features;
 
+    /**
+     * Creates the command with its parsed arguments.
+     *
+     * @param crobs       the system model
+     * @param date        the booking date
+     * @param startTime   the start time
+     * @param endTime     the end time
+     * @param minCapacity the minimum capacity
+     * @param features    the room features
+     */
     public SearchCommand(CROBS crobs, LocalDate date, LocalTime startTime, LocalTime endTime, int minCapacity, Set<String> features) {
         this.crobs = crobs;
         this.date = date;
