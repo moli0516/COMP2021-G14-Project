@@ -156,7 +156,7 @@ public final class CommandParser {
     }
     private static Set<String> parseFeatures(String text){
         if(text.equals("-")){
-            return new HashSet<String>();
+            return new HashSet<>();
         }
         return FeatureSet.parse(text).asSet();
     }

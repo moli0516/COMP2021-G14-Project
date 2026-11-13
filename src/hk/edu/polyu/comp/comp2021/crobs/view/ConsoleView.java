@@ -22,7 +22,10 @@ public final class ConsoleView {
         this.output = output;
     }
 
-    /** Return null on EOF. The application owns resource lifetime. */
+    /** @return input stram to read line, Return null on EOF.
+     * The application owns resource lifetime.
+     * @throws IOException when stream is closed or interrupted
+     * */
     public String readLine() throws IOException {
         return input.readLine();
     }

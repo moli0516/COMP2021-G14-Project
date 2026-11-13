@@ -1,5 +1,8 @@
 package hk.edu.polyu.comp.comp2021.crobs.controller;
 
+/**
+ * Command interface to be implemented by the commands.
+ */
 public interface Command {
     /**
      * Executes this command.
