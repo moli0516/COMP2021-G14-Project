@@ -194,7 +194,7 @@ public final class WebApplication {
             try {
                 server.start();
                 System.out.println(
-                        "CROBS: https://" + SERVER_HOST
+                        "CROBS: http://" + SERVER_HOST
                                 + " (one shared local session)");
                 stopped.await();
             } catch (InterruptedException exception) {
