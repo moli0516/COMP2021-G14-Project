@@ -13,13 +13,28 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
 
+/**
+ * Parses command lines into {@link Command} objects.
+ */
 public final class CommandParser {
     private final CROBS crobs;
 
+    /**
+     * Creates a parser bound to the given system.
+     *
+     * @param crobs the system model
+     */
     public CommandParser(CROBS crobs) {
         this.crobs = crobs;
     }
 
+    /**
+     * Parses one command line; malformed input is rejected with a
+     * {@code ValidationException}.
+     *
+     * @param commandLine the raw command line
+     * @return the matching command, ready to execute
+     */
     public Command parse(String commandLine) {
         String[] words=commandLine.trim().split("\\s+");
         String name=words[0];

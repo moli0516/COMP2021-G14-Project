@@ -6,10 +6,19 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+/**
+ * Logs commands to a plain-text file, one per line.
+ */
 public final class TextCommandLogger implements CommandLogger {
     private final Path path;
     private final BufferedWriter writer;
 
+    /**
+     * Creates the log file.
+     *
+     * @param path the text file to write
+     * @throws IOException if the file cannot be created
+     */
     public TextCommandLogger(Path path) throws IOException {
         this.path = path;
         this.writer = Files.newBufferedWriter(this.path, StandardCharsets.UTF_8);

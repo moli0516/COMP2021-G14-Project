@@ -6,12 +6,21 @@ import java.io.BufferedWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
+/**
+ * Logs commands as rows of an HTML table (index and command).
+ */
 public final class HtmlCommandLogger implements CommandLogger {
     private final Path path;
     private final BufferedWriter writer;
     private boolean closed;
     private int index;
 
+    /**
+     * Creates the log file and writes the HTML header.
+     *
+     * @param path the HTML file to write
+     * @throws IOException if the file cannot be created
+     */
     public HtmlCommandLogger(Path path) throws IOException {
         this.path = path;
         this.writer=Files.newBufferedWriter(this.path, StandardCharsets.UTF_8);
@@ -49,6 +58,13 @@ public final class HtmlCommandLogger implements CommandLogger {
             writer.close();
         }
     }
+
+    /**
+     * Escapes characters that are special in HTML.
+     *
+     * @param text the raw text
+     * @return the escaped text
+     */
     static String escape(String text){
         String res=text.replace("&","&amp;").replace("<","&lt;")
         .replace(">","&gt;").replace("\"","&quot;")

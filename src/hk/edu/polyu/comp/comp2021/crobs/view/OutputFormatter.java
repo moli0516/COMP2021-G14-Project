@@ -9,18 +9,41 @@ import java.util.TreeSet;
 import java.util.Objects;
 import java.util.Comparator;
 
+/**
+ * Formats model objects as text for display.
+ */
 public final class OutputFormatter {
     private static final Comparator<Booking> BY_DATE_TIME_ID=Comparator.comparing(Booking::getDate)
             .thenComparing(Booking::getStartTime).thenComparing(Booking::getBookingId);
+    
+    /**
+     * Formats a user as ID, name and role.
+     *
+     * @param user the user to format
+     * @return the formatted user
+     */
     public String formatUser(User user){
         return user.getUserId()+"("+user.getName()+", "+user.getRole()+")";
     }
+
+    /**
+     * Formats a room with its ID, type, capacity and features.
+     *
+     * @param room the room to format
+     * @return the formatted room
+     */
     public String formatRoom(Room room) {
         String features = new TreeSet<String>(room.getFeatures().asSet()).toString();
         return room.getRoomId() + " | " + room.getRoomType().toCommand()
             + " | capacity: " + room.getCapacity() + " | features " + features;
     }
 
+    /**
+     * Formats rooms one per line, sorted by room ID.
+     *
+     * @param rooms the rooms to format
+     * @return the formatted list, or a message if it is empty
+     */
     public String formatRooms(List<Room> rooms) {
         if(rooms.isEmpty()){
             return "No rooms were found.";
@@ -33,12 +56,25 @@ public final class OutputFormatter {
         }
         return s.toString();
     }
+
+    /**
+     * Formats a booking on one line.
+     *
+     * @param b the booking to format
+     * @return the formatted booking
+     */
     public String formatBooking(Booking b){
         String res=b.getBookingId()+" room "+b.getRoomId()+" "+b.getDate()+" "+b.getStartTime()+"-"
                 +b.getEndTime()+" "+b.getPurpose()+" "+(b.isCancelled()?"CANCELLED":"ACTIVE");
         return res;
     }
 
+    /**
+     * Formats bookings one per line, sorted by date and start time.
+     *
+     * @param bookings the bookings to format
+     * @return the formatted list, or a message if it is empty
+     */
     public String formatBookings(List<Booking> bookings) {
         if (bookings.isEmpty()){
             return "No bookings found.";
@@ -52,6 +88,13 @@ public final class OutputFormatter {
         return s.toString();
     }
 
+    /**
+     * Formats a room schedule; the owner ID is shown only to admins and to the owner.
+     *
+     * @param bookings the bookings to show
+     * @param viewer the user viewing the schedule
+     * @return the formatted schedule, or a message if it is empty
+     */
     public String formatSchedule(List<Booking> bookings, User viewer) {
         List<Booking> current = new ArrayList<>();
         for (Booking b : bookings) {

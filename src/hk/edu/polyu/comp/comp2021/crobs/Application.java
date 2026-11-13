@@ -17,11 +17,18 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+    /** Command-line entry point of the Campus Room Booking System. 
+    */
 public final class Application {
     private static final String USAGE = "Usage: java hk.edu.polyu.comp.comp2021.crobs.Application -html <file> -txt <file>";
     private Application() {
     }
 
+    /**
+     * Starts the console application.
+     *
+     * @param args {@code -html <file> -txt <file>}
+     */
     public static void main(String[] args) {
         Path htmlPath=null;
         Path txtPath=null;
