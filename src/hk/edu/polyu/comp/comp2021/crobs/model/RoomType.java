@@ -25,6 +25,7 @@ public enum RoomType {
 
     private final String commandName;
 
+
     /**
      * Associates a room category with its command spelling.
      *
@@ -53,7 +54,7 @@ public enum RoomType {
     public static RoomType fromCommand(String text) {
         if (text != null) {
             for (RoomType type : values()) {
-                if (type.commandName.equals(text)) {
+                if (type.toCommand().equals(text)) {
                     return type;
                 }
             }

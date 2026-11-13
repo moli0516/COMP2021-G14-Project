@@ -77,7 +77,7 @@ public final class BookingRepository {
      * @return a new unsorted list of matching bookings, possibly empty
      */
     public List<Booking> findByOwner(String ownerUserId) {
-        List<Booking> bookings = new ArrayList<Booking>();
+        List<Booking> bookings = new ArrayList<>();
         for(Booking booking : entries.values()){
             if(Objects.equals(booking.getOwnerUserId(), ownerUserId)){
                 bookings.add(booking);
@@ -93,7 +93,7 @@ public final class BookingRepository {
      * @return a new unsorted list of matching bookings, possibly empty
      */
     public List<Booking> findByRoom(String roomId) {
-        List<Booking> bookings = new ArrayList<Booking>();
+        List<Booking> bookings = new ArrayList<>();
         for(Booking booking : entries.values()){
             if(Objects.equals(booking.getRoomId(), roomId)){
                 bookings.add(booking);

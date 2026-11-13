@@ -9,8 +9,10 @@ import java.time.LocalTime;
 import hk.edu.polyu.comp.comp2021.crobs.model.exceptions.NotFoundException;
 import hk.edu.polyu.comp.comp2021.crobs.model.exceptions.ValidationException;
 
+@SuppressWarnings({"MagicNumber", "MissingJavadoc"})
 class BookingRepositoryTest {
     private Booking value(String id, String name) { return new Booking(id, name, "R1", LocalDate.of(2026, 11, 10), LocalTime.of(9, 0), LocalTime.of(10, 0), "Meeting", false); }
+    @SuppressWarnings("MissingJavadoc")
     @Test void addAndRequireReturnStoredValue() {
         BookingRepository repo = new BookingRepository();
         Booking value = value("X1", "first");
@@ -18,10 +20,12 @@ class BookingRepositoryTest {
         assertSame(value, repo.require("X1"));
         assertEquals(1, repo.findAll().size());
     }
+    @SuppressWarnings("MissingJavadoc")
     @Test void missingLookupThrowsNotFound() {
         assertThrows(NotFoundException.class,
                 () -> new BookingRepository().require("missing"));
     }
+    @SuppressWarnings("MissingJavadoc")
     @Test void duplicateAddIsRejectedWithoutReplacingOriginal() {
         BookingRepository repo = new BookingRepository();
         Booking original = value("X1", "first");
@@ -30,6 +34,7 @@ class BookingRepositoryTest {
         assertSame(original, repo.require("X1"));
         assertEquals(1, repo.findAll().size());
     }
+    @SuppressWarnings("MissingJavadoc")
     @Test void replacementChangesStoredValue() {
         BookingRepository repo = new BookingRepository();
         repo.add(value("X1", "first"));
@@ -38,11 +43,13 @@ class BookingRepositoryTest {
         assertSame(replacement, repo.require("X1"));
         assertEquals(1, repo.findAll().size());
     }
+    @SuppressWarnings("MissingJavadoc")
     @Test void missingReplacementThrowsWithoutAdding() {
         BookingRepository repo = new BookingRepository();
         assertThrows(NotFoundException.class, () -> repo.replace(value("X1", "first")));
         assertTrue(repo.findAll().isEmpty());
     }
+    @SuppressWarnings("MissingJavadoc")
     @Test void removeDeletesStoredValue() {
         BookingRepository repo = new BookingRepository();
         repo.add(value("X1", "first"));
@@ -50,10 +57,12 @@ class BookingRepositoryTest {
         assertTrue(repo.findAll().isEmpty());
         assertThrows(NotFoundException.class, () -> repo.require("X1"));
     }
+    @SuppressWarnings("MissingJavadoc")
     @Test void missingRemovalThrows() {
         assertThrows(NotFoundException.class,
                 () -> new BookingRepository().remove("missing"));
     }
+    @SuppressWarnings("MissingJavadoc")
     @Test void listIsDetachedFromLaterChanges() {
         BookingRepository repo = new BookingRepository();
         repo.add(value("X1", "first"));
@@ -62,6 +71,7 @@ class BookingRepositoryTest {
         assertEquals(1, snapshot.size());
         assertEquals(2, repo.findAll().size());
     }
+    @SuppressWarnings("MissingJavadoc")
     @Test void changingReturnedListCannotChangeRepository() {
         BookingRepository repo = new BookingRepository();
         repo.add(value("X1", "first"));
@@ -72,6 +82,7 @@ class BookingRepositoryTest {
         assertEquals(1, repo.findAll().size());
     }
 
+    @SuppressWarnings("MissingJavadoc")
     @Test void ownerAndRoomQueriesFilterAndIncludeCancelledRecords() {
         BookingRepository repo = new BookingRepository();
         Booking a = value("B1", "U1");
@@ -85,6 +96,7 @@ class BookingRepositoryTest {
         assertTrue(repo.findByOwner("unknown").isEmpty());
         assertTrue(repo.findByRoom("unknown").isEmpty());
     }
+    @SuppressWarnings("MissingJavadoc")
     @Test void queryListsAreDetached() {
         BookingRepository repo = new BookingRepository();
         repo.add(value("B1", "U1"));

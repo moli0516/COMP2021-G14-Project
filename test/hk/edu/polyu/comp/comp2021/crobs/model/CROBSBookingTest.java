@@ -13,6 +13,7 @@ import hk.edu.polyu.comp.comp2021.crobs.model.exceptions.ValidationException;
 import hk.edu.polyu.comp.comp2021.crobs.model.exceptions.NotFoundException;
 import hk.edu.polyu.comp.comp2021.crobs.model.exceptions.BookingConflictException;
 
+@SuppressWarnings("MissingJavadoc")
 class CROBSBookingTest {
     private final LocalDate day = LocalDate.of(2026, 11, 10);
 
@@ -28,6 +29,7 @@ class CROBSBookingTest {
         return crobs.createBooking(roomId, day, LocalTime.of(start, 0),
                 LocalTime.of(end, 0), "Project meeting");
     }
+    @SuppressWarnings("MissingJavadoc")
     @Test void anonymousBookingOperationsAreRejected() {
         CROBS crobs = new CROBS();
         assertThrows(AuthorizationException.class, () -> book(crobs, "R1", 9, 10));
@@ -35,6 +37,7 @@ class CROBSBookingTest {
                 day, LocalTime.of(9, 0), LocalTime.of(10, 0), "Meeting"));
         assertThrows(AuthorizationException.class, () -> crobs.deleteBooking("B1"));
     }
+    @SuppressWarnings("MissingJavadoc")
     @Test void newBookingIsActiveAndOwnedByCurrentUser() {
         CROBS crobs = started();
         Room room = room(crobs);
@@ -47,40 +50,50 @@ class CROBSBookingTest {
         assertNotNull(booking.getBookingId());
         assertFalse(booking.getBookingId().trim().isEmpty());
     }
+    @SuppressWarnings("MissingJavadoc")
     @Test void bookingIdsAreDistinct() {
         CROBS crobs = started();
         Room room = room(crobs);
         Booking first = book(crobs, room.getRoomId(), 9, 10);
-        Booking second = book(crobs, room.getRoomId(), 10, 11);
+        @SuppressWarnings("MagicNumber") Booking second = book(crobs, room.getRoomId(), 10, 11);
         assertNotEquals(first.getBookingId(), second.getBookingId());
     }
+    @SuppressWarnings("MissingJavadoc")
     @Test void unknownRoomIsRejected() {
         CROBS crobs = started();
         assertThrows(NotFoundException.class, () -> book(crobs, "UNKNOWN", 9, 10));
     }
+    @SuppressWarnings("MissingJavadoc")
     @Test void overlappingAndIdenticalBookingsAreRejected() {
         CROBS crobs = started();
         Room room = room(crobs);
+        //noinspection MagicNumber
         book(crobs, room.getRoomId(), 9, 11);
+        //noinspection MagicNumber
         assertThrows(BookingConflictException.class, () -> book(crobs, room.getRoomId(), 10, 12));
+        //noinspection MagicNumber
         assertThrows(BookingConflictException.class, () -> book(crobs, room.getRoomId(), 9, 11));
     }
+    @SuppressWarnings("MissingJavadoc")
     @Test void adjacencyDifferentRoomAndDifferentDateAreAllowed() {
         CROBS crobs = started();
         Room first = room(crobs);
         Room second = room(crobs);
         book(crobs, first.getRoomId(), 9, 10);
+        //noinspection MagicNumber
         assertDoesNotThrow(() -> book(crobs, first.getRoomId(), 10, 11));
         assertDoesNotThrow(() -> book(crobs, second.getRoomId(), 9, 10));
         assertDoesNotThrow(() -> crobs.createBooking(first.getRoomId(), day.plusDays(1),
                 LocalTime.of(9, 0), LocalTime.of(10, 0), "Next day"));
     }
+    @SuppressWarnings("MissingJavadoc")
     @Test void invalidIntervalIsRejectedWithoutOccupyingTheSlot() {
         CROBS crobs = started();
         Room room = room(crobs);
         assertThrows(ValidationException.class, () -> book(crobs, room.getRoomId(), 10, 9));
         assertDoesNotThrow(() -> book(crobs, room.getRoomId(), 9, 10));
     }
+    @SuppressWarnings("MissingJavadoc")
     @Test void modificationPreservesOwnerAndIdAndExcludesSelf() {
         CROBS crobs = started();
         Room room = room(crobs);
@@ -92,28 +105,36 @@ class CROBSBookingTest {
         assertEquals("Updated purpose", updated.getPurpose());
         assertFalse(updated.isCancelled());
     }
+    @SuppressWarnings("MissingJavadoc")
     @Test void successfulModificationReleasesOldSlot() {
         CROBS crobs = started();
         Room room = room(crobs);
         Booking original = book(crobs, room.getRoomId(), 9, 10);
+        //noinspection MagicNumber
         crobs.modifyBooking(original.getBookingId(), room.getRoomId(), day,
                 LocalTime.of(11, 0), LocalTime.NOON, "Moved");
         assertDoesNotThrow(() -> book(crobs, room.getRoomId(), 9, 10));
+        //noinspection MagicNumber
         assertThrows(BookingConflictException.class, () -> book(crobs, room.getRoomId(), 11, 12));
     }
+    @SuppressWarnings("MissingJavadoc")
     @Test void rejectedModificationLeavesOriginalReservationInPlace() {
         CROBS crobs = started();
         Room room = room(crobs);
         Booking original = book(crobs, room.getRoomId(), 9, 10);
+        //noinspection MagicNumber
         book(crobs, room.getRoomId(), 11, 12);
+        //noinspection MagicNumber
         assertThrows(BookingConflictException.class, () -> crobs.modifyBooking(
                 original.getBookingId(), room.getRoomId(), day,
                 LocalTime.of(11, 30), LocalTime.of(12, 30), "Conflict"));
         assertThrows(BookingConflictException.class, () -> book(crobs, room.getRoomId(), 9, 10));
+        //noinspection MagicNumber
         assertThrows(BookingConflictException.class, () -> book(crobs, room.getRoomId(), 11, 12));
         assertDoesNotThrow(() -> crobs.modifyBooking(original.getBookingId(), room.getRoomId(),
                 day, LocalTime.of(9, 0), LocalTime.of(10, 0), "Still owned"));
     }
+    @SuppressWarnings("MissingJavadoc")
     @Test void regularUserCannotModifyOrDeleteAnotherUsersBooking() {
         CROBS crobs = started();
         Room room = room(crobs);
@@ -122,12 +143,14 @@ class CROBSBookingTest {
         crobs.logout(); crobs.login(owner.getUserId());
         Booking booking = book(crobs, room.getRoomId(), 9, 10);
         crobs.logout(); crobs.login(other.getUserId());
+        //noinspection MagicNumber
         assertThrows(AuthorizationException.class, () -> crobs.modifyBooking(
                 booking.getBookingId(), room.getRoomId(), day,
                 LocalTime.of(11, 0), LocalTime.NOON, "Not mine"));
         assertThrows(AuthorizationException.class, () -> crobs.deleteBooking(booking.getBookingId()));
         assertThrows(BookingConflictException.class, () -> book(crobs, room.getRoomId(), 9, 10));
     }
+    @SuppressWarnings("MissingJavadoc")
     @Test void evenSuperAdminCannotModifyOrDeleteAnotherUsersBooking() {
         CROBS crobs = started();
         Room room = room(crobs);
@@ -135,11 +158,13 @@ class CROBSBookingTest {
         crobs.logout(); crobs.login(owner.getUserId());
         Booking booking = book(crobs, room.getRoomId(), 9, 10);
         crobs.logout(); crobs.login("SA001");
+        //noinspection MagicNumber
         assertThrows(AuthorizationException.class, () -> crobs.modifyBooking(
                 booking.getBookingId(), room.getRoomId(), day,
                 LocalTime.of(11, 0), LocalTime.NOON, "Not mine"));
         assertThrows(AuthorizationException.class, () -> crobs.deleteBooking(booking.getBookingId()));
     }
+    @SuppressWarnings("MissingJavadoc")
     @Test void ownerDeletionReleasesSlot() {
         CROBS crobs = started();
         Room room = room(crobs);
@@ -147,6 +172,7 @@ class CROBSBookingTest {
         crobs.deleteBooking(booking.getBookingId());
         assertDoesNotThrow(() -> book(crobs, room.getRoomId(), 9, 10));
     }
+    @SuppressWarnings("MissingJavadoc")
     @Test void missingModificationAndDeletionReportNotFound() {
         CROBS crobs = started();
         Room room = room(crobs);
@@ -154,6 +180,7 @@ class CROBSBookingTest {
                 room.getRoomId(), day, LocalTime.of(9, 0), LocalTime.of(10, 0), "Missing"));
         assertThrows(NotFoundException.class, () -> crobs.deleteBooking("UNKNOWN"));
     }
+    @SuppressWarnings("MissingJavadoc")
     @Test void removingRegularUserReleasesTheirReservations() {
         CROBS crobs = started();
         Room room = room(crobs);
@@ -165,14 +192,16 @@ class CROBSBookingTest {
         assertDoesNotThrow(() -> book(crobs, room.getRoomId(), 9, 10));
     }
 
+    @SuppressWarnings("MissingJavadoc")
     @Test
     void anonymousUserCannotListBookings() {
         CROBS crobs = new CROBS();
 
         assertThrows(AuthorizationException.class,
-                () -> crobs.getCurrentUserBookings());
+                crobs::getCurrentUserBookings);
     }
 
+    @SuppressWarnings("MissingJavadoc")
     @Test
     void currentUserWithoutBookingsGetsEmptyList() {
         CROBS crobs = started();
@@ -187,6 +216,7 @@ class CROBSBookingTest {
         assertTrue(result.isEmpty());
     }
 
+    @SuppressWarnings("MissingJavadoc")
     @Test
     void currentUserBookingsContainOnlyTheirOwnBookings() {
         CROBS crobs = started();
@@ -200,7 +230,7 @@ class CROBSBookingTest {
 
         crobs.logout();
         crobs.login(other.getUserId());
-        Booking otherBooking = book(crobs, room.getRoomId(), 10, 11);
+        @SuppressWarnings("MagicNumber") Booking otherBooking = book(crobs, room.getRoomId(), 10, 11);
 
         List<Booking> otherResult = crobs.getCurrentUserBookings();
 
@@ -222,6 +252,7 @@ class CROBSBookingTest {
                 ownerResult.get(0).getOwnerUserId());
     }
 
+    @SuppressWarnings("MissingJavadoc")
     @Test
     void currentUserBookingsAreSortedByDateThenStartTime() {
         CROBS crobs = started();
@@ -232,7 +263,7 @@ class CROBSBookingTest {
                 LocalTime.of(8, 0), LocalTime.of(9, 0),
                 "Next day meeting");
 
-        Booking laterToday = book(crobs, room.getRoomId(), 14, 15);
+        @SuppressWarnings("MagicNumber") Booking laterToday = book(crobs, room.getRoomId(), 14, 15);
         Booking earlierToday = book(crobs, room.getRoomId(), 9, 10);
 
         List<String> actualIds = crobs.getCurrentUserBookings()
@@ -248,6 +279,7 @@ class CROBSBookingTest {
                 actualIds);
     }
 
+    @SuppressWarnings("MissingJavadoc")
     @Test
     void superAdminListingContainsOnlyTheirOwnBookings() {
         CROBS crobs = started();
@@ -258,6 +290,7 @@ class CROBSBookingTest {
 
         crobs.logout();
         crobs.login(regularUser.getUserId());
+        //noinspection MagicNumber
         book(crobs, room.getRoomId(), 10, 11);
 
         crobs.logout();
@@ -271,6 +304,7 @@ class CROBSBookingTest {
         assertEquals("SA001", result.get(0).getOwnerUserId());
     }
 
+    @SuppressWarnings("MissingJavadoc")
     @Test
     void modifyingReturnedListDoesNotRemoveStoredBookings() {
         CROBS crobs = started();
@@ -290,12 +324,13 @@ class CROBSBookingTest {
                 () -> book(crobs, room.getRoomId(), 9, 10));
     }
 
+    @SuppressWarnings("MissingJavadoc")
     @Test
     void deletedBookingIsAbsentFromCurrentUserBookings() {
         CROBS crobs = started();
         Room room = room(crobs);
         Booking deleted = book(crobs, room.getRoomId(), 9, 10);
-        Booking remaining = book(crobs, room.getRoomId(), 10, 11);
+        @SuppressWarnings("MagicNumber") Booking remaining = book(crobs, room.getRoomId(), 10, 11);
 
         crobs.deleteBooking(deleted.getBookingId());
 
@@ -306,6 +341,7 @@ class CROBSBookingTest {
                 result.get(0).getBookingId());
     }
 
+    @SuppressWarnings("MissingJavadoc")
     @Test
     void loggedOutUserCannotListPreviouslyAccessibleBookings() {
         CROBS crobs = started();
@@ -317,6 +353,6 @@ class CROBSBookingTest {
         crobs.logout();
 
         assertThrows(AuthorizationException.class,
-                () -> crobs.getCurrentUserBookings());
+                crobs::getCurrentUserBookings);
     }
 }

@@ -33,7 +33,7 @@ public final class OutputFormatter {
      * @return the formatted room
      */
     public String formatRoom(Room room) {
-        String features = new TreeSet<String>(room.getFeatures().asSet()).toString();
+        String features = new TreeSet<>(room.getFeatures().asSet()).toString();
         return room.getRoomId() + " | " + room.getRoomType().toCommand()
             + " | capacity: " + room.getCapacity() + " | features " + features;
     }
@@ -64,9 +64,8 @@ public final class OutputFormatter {
      * @return the formatted booking
      */
     public String formatBooking(Booking b){
-        String res=b.getBookingId()+" room "+b.getRoomId()+" "+b.getDate()+" "+b.getStartTime()+"-"
+        return b.getBookingId()+" room "+b.getRoomId()+" "+b.getDate()+" "+b.getStartTime()+"-"
                 +b.getEndTime()+" "+b.getPurpose()+" "+(b.isCancelled()?"CANCELLED":"ACTIVE");
-        return res;
     }
 
     /**

@@ -15,12 +15,12 @@ The Web adapter uses the JDK-specific `jdk.httpserver` module. Confirm its accep
 
 Run these commands from the repository root. Scripts also locate the repository when invoked from another directory.
 
-| Mode | macOS / Linux | Windows PowerShell |
-|---|---|---|
-| CLI (default) | `bash run.sh` | `.\run.bat` |
-| CLI (explicit) | `bash run.sh cli` | `.\run.bat cli` |
-| Web UI | `bash run.sh web` | `.\run.bat web` |
-| Help | `bash run.sh --help` | `.\run.bat --help` |
+| Mode           | macOS / Linux        | Windows PowerShell |
+|----------------|----------------------|--------------------|
+| CLI (default)  | `bash run.sh`        | `.\run.bat`        |
+| CLI (explicit) | `bash run.sh cli`    | `.\run.bat cli`    |
+| Web UI         | `bash run.sh web`    | `.\run.bat web`    |
+| Help           | `bash run.sh --help` | `.\run.bat --help` |
 
 In Command Prompt use `run.bat` instead of `.\run.bat`. On macOS/Linux, optionally run `chmod +x run.sh`, then use `./run.sh`.
 
@@ -65,10 +65,10 @@ IDs are generated automatically; use the actual returned IDs in later operations
 
 Default files:
 
-| Mode | HTML | TXT |
-|---|---|---|
-| CLI | `logs/cli.html` | `logs/cli.txt` |
-| Web | `logs/web.html` | `logs/web.txt` |
+| Mode | HTML            | TXT            |
+|------|-----------------|----------------|
+| CLI  | `logs/cli.html` | `logs/cli.txt` |
+| Web  | `logs/web.html` | `logs/web.txt` |
 
 To choose both filenames with one argument, supply a prefix without an extension:
 
@@ -99,25 +99,25 @@ Reusing a filename follows the existing logger behavior; these launchers do not 
 
 ## CLI commands
 
-| Command | Arguments |
-|---|---|
-| `login` | `userID` |
-| `logout` | — |
-| `addUser` | `name` (spaces allowed) |
-| `removeUser` | `targetUserID` |
-| `changeRole` | `targetUserID REGULAR|ADMIN` |
-| `addRoom` | `roomType capacity features` |
-| `modifyRoom` | `roomID field newValue` |
-| `deleteRoom` | `roomID` |
-| `listRoom` | `roomID` |
-| `listAllRooms` | — |
-| `book` | `roomID date startTime endTime purpose` |
+| Command         | Arguments                                         |
+|-----------------|---------------------------------------------------|
+| `login`         | `userID`                                          |
+| `logout`        | —                                                 |
+| `addUser`       | `name` (spaces allowed)                           |
+| `removeUser`    | `targetUserID`                                    |
+| `changeRole`    | `targetUserID REGULAR\|ADMIN`                     |
+| `addRoom`       | `roomType capacity features`                      |
+| `modifyRoom`    | `roomID field newValue`                           |
+| `deleteRoom`    | `roomID`                                          |
+| `listRoom`      | `roomID`                                          |
+| `listAllRooms`  | —                                                 |
+| `book`          | `roomID date startTime endTime purpose`           |
 | `modifyBooking` | `bookingID roomID date startTime endTime purpose` |
-| `deleteBooking` | `bookingID` |
-| `listBookings` | — |
-| `search` | `date startTime endTime minCapacity features` |
-| `schedule` | `roomID weekStartDate` |
-| `quit` | — |
+| `deleteBooking` | `bookingID`                                       |
+| `listBookings`  | —                                                 |
+| `search`        | `date startTime endTime minCapacity features`     |
+| `schedule`      | `roomID weekStartDate`                            |
+| `quit`          | —                                                 |
 
 Room types: `lectureTheatre`, `computerLab`, `seminarRoom`, `meetingRoom`.
 Room fields in the integrated UI: `roomType`, `capacity`, `features`.

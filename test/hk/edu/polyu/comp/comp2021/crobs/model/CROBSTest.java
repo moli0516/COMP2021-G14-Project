@@ -4,8 +4,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+@SuppressWarnings("MissingJavadoc")
 class CROBSTest {
 
+    @SuppressWarnings("MissingJavadoc")
     @Test
     void testCROBSConstructor() {
         CROBS crobs = new CROBS();

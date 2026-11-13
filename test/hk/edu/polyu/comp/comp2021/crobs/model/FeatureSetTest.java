@@ -4,12 +4,13 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@SuppressWarnings("MissingJavadoc")
 class FeatureSetTest {
 
+    @SuppressWarnings("MissingJavadoc")
     @Test
     void constructorNormalizesFeatures() {
         FeatureSet features = new FeatureSet(
@@ -20,6 +21,7 @@ class FeatureSetTest {
                 features.asSet());
     }
 
+    @SuppressWarnings("MissingJavadoc")
     @Test
     void parseSplitsAndNormalizesFeatures() {
         FeatureSet features = FeatureSet.parse("Projector, Whiteboard/Microphone");
@@ -30,15 +32,18 @@ class FeatureSetTest {
                 features.asSet());
     }
 
+    @SuppressWarnings("MissingJavadoc")
     @Test
     void returnedSetCannotBeModified() {
         FeatureSet features = FeatureSet.parse("projector");
 
+        //noinspection DataFlowIssue
         assertThrows(
                 UnsupportedOperationException.class,
                 () -> features.asSet().add("whiteboard"));
     }
 
+    @SuppressWarnings("MissingJavadoc")
     @Test
     void containsAllChecksForRequiredSubset() {
         FeatureSet available =
@@ -50,6 +55,7 @@ class FeatureSetTest {
         assertFalse(required.containsAll(available));
     }
 
+    @SuppressWarnings("MissingJavadoc")
     @Test
     void rejectsNullSet() {
         assertThrows(

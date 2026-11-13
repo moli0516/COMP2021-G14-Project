@@ -80,7 +80,7 @@ The following are proposed team/API contracts, not verbatim assignment requireme
 - immutable Booking replacement and cancellation copies;
 - ValidationException for invalid inputs and duplicate repository adds;
 - NotFoundException for missing repository require/replace/remove;
-- blank-purpose/name rejection and retaining cancelled repository records.
+- blank-purpose/name rejection and retaining canceled repository records.
 Agree these contracts before treating a differing policy as a bug. When changing a
 contract, update implementation, tests and API documentation consistently.
 Repository lists may be mutable detached copies or unmodifiable snapshots; tests
@@ -88,7 +88,7 @@ accept both but require that changing a returned container cannot change storage
 
 ## Known coverage limits / next additions
 No tests call absent facade methods: changeRole and personal booking listing must
-get tests after their public signatures are implemented. Therefore REQ4/REQ17 and
+get tests after their public signatures are implemented. Therefore, REQ4/REQ17 and
 regular-admin promotion/demotion/inherited session refresh are NOT yet covered.
 Room/search/schedule functions, FeatureSet behavior, CLI/logging, room-deletion
 future-time boundaries and persistence are outside this Part A patch's main scope.

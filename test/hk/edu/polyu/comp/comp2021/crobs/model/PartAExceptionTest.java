@@ -4,7 +4,9 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import hk.edu.polyu.comp.comp2021.crobs.model.exceptions.*;
 
+@SuppressWarnings("MissingJavadoc")
 class PartAExceptionTest {
+    @SuppressWarnings("MissingJavadoc")
     @Test void crobsExceptionPreservesMessageAndCause() {
         CrobsException plain = new CrobsException("details");
         assertEquals("details", plain.getMessage());
@@ -13,8 +15,9 @@ class PartAExceptionTest {
         CrobsException wrapped = new CrobsException("wrapped", cause);
         assertEquals("wrapped", wrapped.getMessage());
         assertSame(cause, wrapped.getCause());
-        assertTrue(wrapped instanceof CrobsException);
+        assertInstanceOf(CrobsException.class, wrapped);
     }
+    @SuppressWarnings("MissingJavadoc")
     @Test void authorizationExceptionPreservesMessageAndCause() {
         AuthorizationException plain = new AuthorizationException("details");
         assertEquals("details", plain.getMessage());
@@ -23,8 +26,9 @@ class PartAExceptionTest {
         AuthorizationException wrapped = new AuthorizationException("wrapped", cause);
         assertEquals("wrapped", wrapped.getMessage());
         assertSame(cause, wrapped.getCause());
-        assertTrue(wrapped instanceof CrobsException);
+        assertInstanceOf(CrobsException.class, wrapped);
     }
+    @SuppressWarnings("MissingJavadoc")
     @Test void notFoundExceptionPreservesMessageAndCause() {
         NotFoundException plain = new NotFoundException("details");
         assertEquals("details", plain.getMessage());
@@ -33,8 +37,9 @@ class PartAExceptionTest {
         NotFoundException wrapped = new NotFoundException("wrapped", cause);
         assertEquals("wrapped", wrapped.getMessage());
         assertSame(cause, wrapped.getCause());
-        assertTrue(wrapped instanceof CrobsException);
+        assertInstanceOf(CrobsException.class, wrapped);
     }
+    @SuppressWarnings("MissingJavadoc")
     @Test void validationExceptionPreservesMessageAndCause() {
         ValidationException plain = new ValidationException("details");
         assertEquals("details", plain.getMessage());
@@ -43,8 +48,9 @@ class PartAExceptionTest {
         ValidationException wrapped = new ValidationException("wrapped", cause);
         assertEquals("wrapped", wrapped.getMessage());
         assertSame(cause, wrapped.getCause());
-        assertTrue(wrapped instanceof CrobsException);
+        assertInstanceOf(CrobsException.class, wrapped);
     }
+    @SuppressWarnings("MissingJavadoc")
     @Test void bookingConflictExceptionPreservesMessageAndCause() {
         BookingConflictException plain = new BookingConflictException("details");
         assertEquals("details", plain.getMessage());
@@ -53,6 +59,6 @@ class PartAExceptionTest {
         BookingConflictException wrapped = new BookingConflictException("wrapped", cause);
         assertEquals("wrapped", wrapped.getMessage());
         assertSame(cause, wrapped.getCause());
-        assertTrue(wrapped instanceof CrobsException);
+        assertInstanceOf(CrobsException.class, wrapped);
     }
 }

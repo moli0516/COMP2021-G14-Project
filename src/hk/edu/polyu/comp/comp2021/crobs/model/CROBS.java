@@ -18,10 +18,10 @@ import java.util.List;
  */
 public class CROBS {
 
-    private UserRepository users;
-    private BookingRepository bookings;
-    private RoomRepository rooms;
-    private IdGenerator idGenerator;
+    private final UserRepository users;
+    private final BookingRepository bookings;
+    private final RoomRepository rooms;
+    private final IdGenerator idGenerator;
 
     private String currentUserId;
 
@@ -34,7 +34,7 @@ public class CROBS {
         this.rooms = new RoomRepository();
         this.idGenerator = new IdGenerator();
 
-        this.currentUserId = null;
+        this.currentUserId = "";
         User superAdmin = new SuperAdmin("SA001", "superadmin");
         users.add(superAdmin);
     }
@@ -61,10 +61,9 @@ public class CROBS {
      * @throws hk.edu.polyu.comp.comp2021.crobs.model.exceptions.NotFoundException if a referenced entity does not exist
      */
     public void login(String userId){
-        if (currentUserId != null) {
+        if (!Objects.equals(currentUserId, "")) {
             throw new AuthorizationException("Please logout before login");
-        }
-        if (currentUserId == null){
+        } else {
             if(userId == null || userId.trim().isEmpty()) throw new ValidationException("The userId is blanked");
         }
 
@@ -167,7 +166,7 @@ public class CROBS {
     public void logout(){
         requiredLoggedIn();
 
-        currentUserId = null;
+        currentUserId = "";
     }
 
     /**
@@ -187,29 +186,25 @@ public class CROBS {
     /**
      * Requires a logged-in administrator.
      *
-     * @return the authorized session user
      * @throws AuthorizationException if the current session lacks the required privileges
      */
-    private User requiredAdmin(){
+    private void requiredAdmin(){
         User user = requiredLoggedIn();
         if(!user.isAdmin()){
             throw new AuthorizationException("Admin privilege is required");
         }
-        return user;
     }
 
     /**
      * Requires a logged-in user with role-changing privileges.
      *
-     * @return the authorized session user
      * @throws AuthorizationException if the current session lacks the required privileges
      */
-    private User requireSuperAdmin(){
+    private void requireSuperAdmin(){
         User user = requiredLoggedIn();
         if(!user.canChangeRoles()){
             throw new AuthorizationException("SuperAdmin privilege is required");
         }
-        return user;
     }
 
     /**
@@ -305,7 +300,7 @@ public class CROBS {
         checkBookingConflict(roomId, date, startTime, endTime, bookingId);
 
         Booking booking = new Booking(bookingId,currentUserId,roomId,date,startTime,endTime,purpose,false);
-        bookings.replace(booking);;
+        bookings.replace(booking);
         return booking;
     }
 
@@ -511,7 +506,7 @@ public class CROBS {
         }
 
         FeatureSet required = new FeatureSet(
-                requiredFeatures == null ? Collections.<String>emptySet() : requiredFeatures);
+                requiredFeatures == null ? Collections.emptySet() : requiredFeatures);
 
         List<Room> result = new ArrayList<>();
         for (Room room : rooms.findAll()) {
