@@ -1,6 +1,5 @@
 package hk.edu.polyu.comp.comp2021.crobs.model;
 
-import hk.edu.polyu.comp.comp2021.crobs.model.exceptions.AuthorizationException;
 import hk.edu.polyu.comp.comp2021.crobs.model.exceptions.ValidationException;
 
 /**

@@ -94,7 +94,7 @@ public final class CommandParser {
                 return new ListBookingsCommand(crobs);
             case "quit":
                 checkExactly(words, 1);
-                return new QuitCommand(crobs);
+                return new QuitCommand();
             default:
                 throw new ValidationException("Unknown command: "+name);
         }
@@ -110,11 +110,11 @@ public final class CommandParser {
         }
     }
     private static String joinFrom(String[] words, int start){
-        String result=words[start];
+        StringBuilder result= new StringBuilder(words[start]);
         for (int i=start+1;i<words.length;i++){
-            result=result+" "+words[i];
+            result.append(" ").append(words[i]);
         }
-        return result;
+        return result.toString();
     }
     private static LocalDate parseDate(String text){
         try{

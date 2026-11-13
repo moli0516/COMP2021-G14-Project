@@ -6,12 +6,15 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@SuppressWarnings("MissingJavadoc")
 class CROBSQueryTest {
 
+    @SuppressWarnings("MissingJavadoc")
     @Test
     void searchRoomsFiltersByCapacityFeaturesAndAvailability() {
         CROBS crobs = new CROBS();
@@ -19,12 +22,12 @@ class CROBSQueryTest {
 
         RoomType type = RoomType.values()[0];
         Room bookedRoom = crobs.addRoom(
-                type, 10, Arrays.asList("projector", "whiteboard")
-                        .stream().collect(java.util.stream.Collectors.toSet()));
-        Room availableRoom = crobs.addRoom(
+                type, 10, new HashSet<>(Arrays.asList("projector", "whiteboard")));
+        @SuppressWarnings("MagicNumber") Room availableRoom = crobs.addRoom(
                 type, 20, Collections.singleton("projector"));
 
         LocalDate date = LocalDate.now().plusDays(1);
+        //noinspection MagicNumber
         crobs.createBooking(
                 bookedRoom.getRoomId(),
                 date,
@@ -32,7 +35,7 @@ class CROBSQueryTest {
                 LocalTime.of(11, 0),
                 "Meeting");
 
-        List<Room> results = crobs.searchRooms(
+        @SuppressWarnings("MagicNumber") List<Room> results = crobs.searchRooms(
                 type,
                 10,
                 Collections.singleton("projector"),
@@ -43,6 +46,7 @@ class CROBSQueryTest {
         assertEquals(Collections.singletonList(availableRoom), results);
     }
 
+    @SuppressWarnings("MissingJavadoc")
     @Test
     void weeklyScheduleContainsBookingsWithinRequestedWeek() {
         CROBS crobs = new CROBS();
@@ -51,7 +55,7 @@ class CROBSQueryTest {
         Room room = crobs.addRoom(
                 RoomType.values()[0],
                 10,
-                Collections.<String>emptySet());
+                Collections.emptySet());
 
         LocalDate weekStart = LocalDate.now().plusDays(1);
 

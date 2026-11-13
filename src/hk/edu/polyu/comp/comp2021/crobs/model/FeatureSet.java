@@ -56,7 +56,7 @@ public final class FeatureSet {
                 features[i] = features[i].replaceAll("[^a-zA-Z]", "").toLowerCase();
             }
         }
-        return new FeatureSet(new HashSet<String>(Arrays.asList(features)));
+        return new FeatureSet(new HashSet<>(Arrays.asList(features)));
     }
 
     /**

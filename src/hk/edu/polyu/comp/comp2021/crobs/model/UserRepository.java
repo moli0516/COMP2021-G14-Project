@@ -79,7 +79,7 @@ public final class UserRepository {
      * @return an unsorted list, possibly empty; modifying it does not change this repository
      */
     public List<User> findAll() {
-        return new ArrayList<User>(entries.values());
+        return new ArrayList<>(entries.values());
     }
 
 }

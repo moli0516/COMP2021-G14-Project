@@ -10,7 +10,6 @@ import java.nio.file.Files;
  * Logs commands as rows of an HTML table (index and command).
  */
 public final class HtmlCommandLogger implements CommandLogger {
-    private final Path path;
     private final BufferedWriter writer;
     private boolean closed;
     private int index;
@@ -22,11 +21,15 @@ public final class HtmlCommandLogger implements CommandLogger {
      * @throws IOException if the file cannot be created
      */
     public HtmlCommandLogger(Path path) throws IOException {
-        this.path = path;
-        this.writer=Files.newBufferedWriter(this.path, StandardCharsets.UTF_8);
+        this.writer=Files.newBufferedWriter(path, StandardCharsets.UTF_8);
         writer.write("<!DOCTYPE html>");
         writer.newLine();
-        writer.write("<html><head><meta charset=\"UTF-8\"><titles>CROBS Command Log</title></head><body>");
+        writer.write("<html lang='en'>" +
+                    "<head><meta charset=\"UTF-8\">" +
+                        "<style>table, th, td { border: 1px solid black; border-collapse: collapse;} </style>" +
+                        "<title>CROBS Command Log</title>" +
+                    "</head>" +
+                "<body>");
         writer.newLine();
         writer.write("<table border=\"1\">");
         writer.newLine();
@@ -66,9 +69,8 @@ public final class HtmlCommandLogger implements CommandLogger {
      * @return the escaped text
      */
     static String escape(String text){
-        String res=text.replace("&","&amp;").replace("<","&lt;")
+        return text.replace("&","&amp;").replace("<","&lt;")
         .replace(">","&gt;").replace("\"","&quot;")
         .replace("'","&#39;");
-        return res;
     }
 }

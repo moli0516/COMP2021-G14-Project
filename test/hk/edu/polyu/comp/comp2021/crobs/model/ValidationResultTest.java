@@ -4,8 +4,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@SuppressWarnings("MissingJavadoc")
 class ValidationResultTest {
 
+    @SuppressWarnings("MissingJavadoc")
     @Test
     void successResultIsValidWithoutMessage() {
         ValidationResult result = ValidationResult.success();
@@ -14,6 +16,7 @@ class ValidationResultTest {
         assertNull(result.getMessage());
     }
 
+    @SuppressWarnings("MissingJavadoc")
     @Test
     void failureResultIsInvalidWithMessage() {
         ValidationResult result = ValidationResult.failure("Invalid room");
