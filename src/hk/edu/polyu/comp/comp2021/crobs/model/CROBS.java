@@ -13,6 +13,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+/**
+ * Coordinates in-memory users, rooms, bookings, and one shared login session.
+ */
 public class CROBS {
 
     private UserRepository users;
@@ -22,6 +25,9 @@ public class CROBS {
 
     private String currentUserId;
 
+    /**
+     * Creates empty repositories and the initial superadmin {@code SA001}, with no logged-in user.
+     */
     public CROBS(){
         this.users = new UserRepository();
         this.bookings = new BookingRepository();
@@ -33,6 +39,11 @@ public class CROBS {
         users.add(superAdmin);
     }
 
+    /**
+     * Resolves the current session user; repository lookup exceptions are treated as no user.
+     *
+     * @return the logged-in user, or {@code null} if resolution fails
+     */
     public User getCurrentUser(){
         try {
             return users.require(currentUserId);
@@ -41,6 +52,14 @@ public class CROBS {
         }
     }
 
+    /**
+     * Logs in an existing user when no user is currently logged in.
+     *
+     * @param userId the nonblank ID of an existing user
+     * @throws AuthorizationException if the current session lacks the required privileges
+     * @throws ValidationException if the supplied domain values are invalid
+     * @throws hk.edu.polyu.comp.comp2021.crobs.model.exceptions.NotFoundException if a referenced entity does not exist
+     */
     public void login(String userId){
         if (currentUserId != null) {
             throw new AuthorizationException("Please logout before login");
@@ -53,6 +72,14 @@ public class CROBS {
         currentUserId = user.getUserId();
     }
 
+    /**
+     * Creates a regular user; requires an administrator.
+     *
+     * @param name the nonblank display name
+     * @return the newly stored user
+     * @throws AuthorizationException if the current session lacks the required privileges
+     * @throws ValidationException if the supplied domain values are invalid
+     */
     public User addUser(String name){
         requiredAdmin();
 
@@ -62,6 +89,14 @@ public class CROBS {
         return user;
     }
 
+    /**
+     * Removes a regular user and all their bookings; requires an administrator.
+     *
+     * @param targetUserId the regular user to remove
+     * @throws AuthorizationException if the current session lacks the required privileges
+     * @throws ValidationException if the supplied domain values are invalid
+     * @throws hk.edu.polyu.comp.comp2021.crobs.model.exceptions.NotFoundException if a referenced entity does not exist
+     */
     public void removeUser(String targetUserId) {
         requiredAdmin();
 
@@ -79,6 +114,15 @@ public class CROBS {
         users.remove(target.getUserId());
     }
 
+    /**
+     * Replaces a user with the requested role while retaining ID and name; requires superadmin.
+     *
+     * @param userId the user whose role is to change
+     * @param newRole a different role, either REGULAR or ADMIN
+     * @throws AuthorizationException if the session is not superadmin or the target is superadmin
+     * @throws ValidationException if the supplied domain values are invalid
+     * @throws hk.edu.polyu.comp.comp2021.crobs.model.exceptions.NotFoundException if a referenced entity does not exist
+     */
     public void changeRole(String userId, UserRole newRole) {
         requireSuperAdmin();
         if (userId == null || userId.trim().isEmpty()) {
@@ -115,12 +159,23 @@ public class CROBS {
         users.replace(replacement);
     }
 
+    /**
+     * Clears the current login session.
+     *
+     * @throws AuthorizationException if no user is logged in
+     */
     public void logout(){
         requiredLoggedIn();
 
         currentUserId = null;
     }
 
+    /**
+     * Requires a logged-in user.
+     *
+     * @return the authorized session user
+     * @throws AuthorizationException if the current session lacks the required privileges
+     */
     private User requiredLoggedIn(){
         User user = getCurrentUser();
         if(user == null){
@@ -129,6 +184,12 @@ public class CROBS {
         return user;
     }
 
+    /**
+     * Requires a logged-in administrator.
+     *
+     * @return the authorized session user
+     * @throws AuthorizationException if the current session lacks the required privileges
+     */
     private User requiredAdmin(){
         User user = requiredLoggedIn();
         if(!user.isAdmin()){
@@ -137,6 +198,12 @@ public class CROBS {
         return user;
     }
 
+    /**
+     * Requires a logged-in user with role-changing privileges.
+     *
+     * @return the authorized session user
+     * @throws AuthorizationException if the current session lacks the required privileges
+     */
     private User requireSuperAdmin(){
         User user = requiredLoggedIn();
         if(!user.canChangeRoles()){
@@ -145,6 +212,17 @@ public class CROBS {
         return user;
     }
 
+    /**
+     * Creates and stores a room; requires an administrator.
+     *
+     * @param type the non-null room category
+     * @param capacity the positive capacity
+     * @param features the non-null set of feature names
+     * @return the new room
+     * @throws AuthorizationException if the current session lacks the required privileges
+     * @throws ValidationException if the supplied domain values are invalid
+     * @throws IllegalArgumentException if the feature set is invalid
+     */
     public Room addRoom(RoomType type, int capacity, Set<String> features){
         requiredAdmin();
 
@@ -153,6 +231,13 @@ public class CROBS {
         return room;
     }
 
+    /**
+     * Removes a room and cancels its active bookings dated today or later; requires admin.
+     *
+     * @param roomId the room to remove
+     * @throws AuthorizationException if the current session lacks the required privileges
+     * @throws hk.edu.polyu.comp.comp2021.crobs.model.exceptions.NotFoundException if a referenced entity does not exist
+     */
     public void deleteRoom(String roomId) {
         requiredAdmin();
         rooms.require(roomId);
@@ -167,6 +252,20 @@ public class CROBS {
         rooms.remove(roomId);
     }
 
+    /**
+     * Creates an active booking owned by the current user; requires login.
+     *
+     * @param roomId the existing room to book
+     * @param date the non-null booking date
+     * @param startTime the inclusive start time
+     * @param endTime the exclusive end time, after the start
+     * @param purpose the nonblank booking purpose
+     * @return the stored booking
+     * @throws AuthorizationException if the current session lacks the required privileges
+     * @throws hk.edu.polyu.comp.comp2021.crobs.model.exceptions.NotFoundException if a referenced entity does not exist
+     * @throws ValidationException if the supplied domain values are invalid
+     * @throws BookingConflictException if an active booking overlaps in the same room on the same date
+     */
     public Booking createBooking(String roomId, LocalDate date,
                                  LocalTime startTime, LocalTime endTime, String purpose){
         requiredLoggedIn();
@@ -178,6 +277,21 @@ public class CROBS {
         return booking;
     }
 
+    /**
+     * Replaces a booking with validated active details; only its logged-in owner may modify it.
+     *
+     * @param bookingId the existing booking to replace
+     * @param roomId the existing room to book
+     * @param date the non-null booking date
+     * @param startTime the inclusive start time
+     * @param endTime the exclusive end time, after the start
+     * @param purpose the nonblank booking purpose
+     * @return the replacement booking
+     * @throws AuthorizationException if the current session lacks the required privileges
+     * @throws hk.edu.polyu.comp.comp2021.crobs.model.exceptions.NotFoundException if a referenced entity does not exist
+     * @throws ValidationException if the supplied domain values are invalid
+     * @throws BookingConflictException if another active booking conflicts with the new interval
+     */
     public Booking modifyBooking(String bookingId, String roomId,
                           LocalDate date, LocalTime startTime, LocalTime endTime,
                           String purpose){
@@ -195,6 +309,13 @@ public class CROBS {
         return booking;
     }
 
+    /**
+     * Permanently removes a booking; only its logged-in owner may delete it.
+     *
+     * @param bookingId the booking to remove
+     * @throws AuthorizationException if the current session lacks the required privileges
+     * @throws hk.edu.polyu.comp.comp2021.crobs.model.exceptions.NotFoundException if a referenced entity does not exist
+     */
     public void deleteBooking(String bookingId){
         requiredLoggedIn();
         if(!Objects.equals(currentUserId, bookings.require(bookingId).getOwnerUserId())){
@@ -204,6 +325,17 @@ public class CROBS {
         bookings.remove(bookingId);
     }
 
+    /**
+     * Checks active bookings for a same-room, same-date time conflict.
+     *
+     * @param roomId the room to inspect
+     * @param date the date to match
+     * @param startTime the proposed start time
+     * @param endTime the proposed end time
+     * @param idToExclude the booking to ignore, or null
+     * @throws BookingConflictException if a non-excluded active booking overlaps
+     * @throws ValidationException if a matching booking detects an invalid proposed interval
+     */
     private void checkBookingConflict(String roomId, LocalDate date, LocalTime startTime, LocalTime endTime, String idToExclude){
         for(Booking existing : bookings.findByRoom(roomId)){
             if(!existing.isCancelled()){
@@ -216,6 +348,12 @@ public class CROBS {
             }
         }
     }
+    /**
+     * Returns only the current user's bookings, including past and cancelled bookings.
+     *
+     * @return a new list sorted by date, start time, and booking ID; possibly empty
+     * @throws AuthorizationException if the current session lacks the required privileges
+     */
     public List<Booking> getCurrentUserBookings() {
         User currentUser = requiredLoggedIn();
 
@@ -231,6 +369,19 @@ public class CROBS {
         return result;
     }
     
+    /**
+     * Replaces room details without changing existing bookings; requires an administrator.
+     *
+     * @param roomId the existing room ID
+     * @param type the new room category
+     * @param capacity the new positive capacity
+     * @param features the new non-null feature names
+     * @return the updated room
+     * @throws AuthorizationException if the current session lacks the required privileges
+     * @throws hk.edu.polyu.comp.comp2021.crobs.model.exceptions.NotFoundException if a referenced entity does not exist
+     * @throws ValidationException if the supplied domain values are invalid
+     * @throws IllegalArgumentException if the feature set is invalid
+     */
     public Room modifyRoom(String roomId, RoomType type, int capacity,
                         Set<String> features) {
         requiredAdmin();
@@ -242,6 +393,17 @@ public class CROBS {
         return updated;
     }
 
+    /**
+     * Changes one room field while preserving the other details; requires an administrator.
+     *
+     * @param roomId the existing room ID
+     * @param field roomType, capacity, or features
+     * @param newValue the nonblank replacement expressed in command syntax
+     * @return the updated room
+     * @throws AuthorizationException if the current session lacks the required privileges
+     * @throws hk.edu.polyu.comp.comp2021.crobs.model.exceptions.NotFoundException if a referenced entity does not exist
+     * @throws ValidationException if the supplied domain values are invalid
+     */
     public Room modifyRoom(String roomId, String field, String newValue) {
         requiredAdmin();
 
@@ -291,11 +453,25 @@ public class CROBS {
         return modifyRoom(roomId, type, capacity, features);
     }
 
+    /**
+     * Returns a room by ID; requires login.
+     *
+     * @param roomId the room identifier
+     * @return the stored room
+     * @throws AuthorizationException if the current session lacks the required privileges
+     * @throws hk.edu.polyu.comp.comp2021.crobs.model.exceptions.NotFoundException if a referenced entity does not exist
+     */
     public Room getRoom(String roomId) {
         requiredLoggedIn();
         return rooms.require(roomId);
     }
 
+    /**
+     * Lists all rooms; requires login.
+     *
+     * @return a new list sorted by room ID, possibly empty
+     * @throws AuthorizationException if the current session lacks the required privileges
+     */
     public List<Room> getAllRooms() {
         requiredLoggedIn();
 
@@ -304,6 +480,20 @@ public class CROBS {
         return result;
     }
 
+    /**
+     * Finds rooms meeting all filters without overlapping active bookings; requires login.
+     *
+     * @param type the required category, or null for any category
+     * @param minCapacity the nonnegative minimum capacity
+     * @param requiredFeatures required feature names, or null for no feature restriction
+     * @param date the availability date
+     * @param startTime the inclusive start time
+     * @param endTime the exclusive end time, after the start
+     * @return a new list of available rooms sorted by ID, possibly empty
+     * @throws AuthorizationException if the current session lacks the required privileges
+     * @throws ValidationException if the supplied domain values are invalid
+     * @throws IllegalArgumentException if the feature names are invalid
+     */
     public List<Room> searchRooms(RoomType type, int minCapacity,
                                 Set<String> requiredFeatures,
                                 LocalDate date, LocalTime startTime,
@@ -353,6 +543,19 @@ public class CROBS {
         return result;
     }
 
+    /**
+     * Searches available rooms of any category; requires login.
+     *
+     * @param date the availability date
+     * @param startTime the inclusive start time
+     * @param endTime the exclusive end time, after the start
+     * @param minCapacity the nonnegative minimum capacity
+     * @param features required features, or null for none
+     * @return available rooms sorted by room ID, possibly empty
+     * @throws AuthorizationException if the current session lacks the required privileges
+     * @throws ValidationException if the supplied domain values are invalid
+     * @throws IllegalArgumentException if the feature names are invalid
+     */
     public List<Room> searchRooms(
             LocalDate date,
             LocalTime startTime,
@@ -369,6 +572,17 @@ public class CROBS {
                 endTime);
     }
 
+    /**
+     * Lists active bookings in the seven-day window starting at the supplied date; requires login.
+     *
+     * @param roomId the existing room ID
+     * @param weekStartDate the inclusive first date; need not be a Monday
+     * @return a new list sorted by date, start time, and booking ID; owner IDs are not redacted here
+     * @throws AuthorizationException if the current session lacks the required privileges
+     * @throws hk.edu.polyu.comp.comp2021.crobs.model.exceptions.NotFoundException if a referenced entity does not exist
+     * @throws ValidationException if the supplied domain values are invalid
+     * @throws java.time.DateTimeException if computing the end of the window exceeds the supported date range
+     */
     public List<Booking> getWeeklySchedule(
             String roomId,
             LocalDate weekStartDate) {
