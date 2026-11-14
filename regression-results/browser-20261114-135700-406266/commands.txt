@@ -1,0 +1,40 @@
+login SA001
+listAllRooms
+listBookings
+listAllRooms
+listBookings
+addRoom meetingRoom 10 projector
+listAllRooms
+listBookings
+addUser Browser User
+listAllRooms
+listBookings
+logout
+login U000001
+listAllRooms
+listBookings
+book R000001 2026-11-28 09:00 10:00 Browser meeting
+listAllRooms
+listBookings
+book R000001 2026-11-28 09:30 10:30 Browser meeting
+modifyBooking B000001 R000001 2026-11-28 11:00 12:00 Updated browser meeting
+listAllRooms
+listBookings
+listBookings
+listAllRooms
+listBookings
+schedule R000001 2026-11-28
+listAllRooms
+listBookings
+search 2026-11-28 12:00 13:00 10 projector
+listAllRooms
+listBookings
+deleteBooking B000001
+listAllRooms
+listBookings
+listBookings
+listAllRooms
+listBookings
+logout
+listBookings
+quit

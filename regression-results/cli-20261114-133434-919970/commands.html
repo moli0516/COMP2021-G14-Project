@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang='en'><head><meta charset="UTF-8"><style>table, th, td { border: 1px solid black; border-collapse: collapse;} </style><title>CROBS Command Log</title></head><body>
+<table border="1">
+<tr><th>Index</th><th>Command</th></tr>
+<tr><td>1</td><td>listAllRooms</td></tr>
+<tr><td>2</td><td>login UNKNOWN</td></tr>
+<tr><td>3</td><td>login SA001</td></tr>
+<tr><td>4</td><td>login SA001</td></tr>
+<tr><td>5</td><td>addRoom meetingRoom 10 projector</td></tr>
+<tr><td>6</td><td>addUser Alice Regression</td></tr>
+<tr><td>7</td><td>addUser Bob Regression</td></tr>
+<tr><td>8</td><td>modifyRoom R000001 capacity 20</td></tr>
+<tr><td>9</td><td>listRoom R000001</td></tr>
+<tr><td>10</td><td>modifyRoom R000001 capacity abc</td></tr>
+<tr><td>11</td><td>listRoom R000001</td></tr>
+<tr><td>12</td><td>logout</td></tr>
+<tr><td>13</td><td>login U000001</td></tr>
+<tr><td>14</td><td>addRoom meetingRoom 10 -</td></tr>
+<tr><td>15</td><td>addUser Forbidden</td></tr>
+<tr><td>16</td><td>modifyRoom R000001 capacity 30</td></tr>
+<tr><td>17</td><td>book R000001 2026-11-28 09:00 10:00 Original meeting</td></tr>
+<tr><td>18</td><td>book R000001 2026-11-28 09:30 10:30 Conflict</td></tr>
+<tr><td>19</td><td>book R000001 2026-11-28 10:00 11:00 Adjacent meeting</td></tr>
+<tr><td>20</td><td>modifyBooking B000001 R000001 2026-11-28 10:30 11:30 Rejected change</td></tr>
+<tr><td>21</td><td>listBookings</td></tr>
+<tr><td>22</td><td>search 2026-11-28 09:30 09:45 1 projector</td></tr>
+<tr><td>23</td><td>search 2026-11-28 11:00 12:00 20 projector</td></tr>
+<tr><td>24</td><td>search 2026-11-28 11:00 12:00 21 projector</td></tr>
+<tr><td>25</td><td>search 2026-11-28 11:00 12:00 1 whiteboard</td></tr>
+<tr><td>26</td><td>book R000001 2026-12-04 09:00 10:00 Last included day</td></tr>
+<tr><td>27</td><td>book R000001 2026-12-05 09:00 10:00 Outside week</td></tr>
+<tr><td>28</td><td>schedule R000001 2026-11-28</td></tr>
+<tr><td>29</td><td>logout</td></tr>
+<tr><td>30</td><td>login U000002</td></tr>
+<tr><td>31</td><td>deleteBooking B000001</td></tr>
+<tr><td>32</td><td>modifyBooking B000001 R000001 2026-11-28 12:00 13:00 Forbidden</td></tr>
+<tr><td>33</td><td>schedule R000001 2026-11-28</td></tr>
+<tr><td>34</td><td>logout</td></tr>
+<tr><td>35</td><td>login SA001</td></tr>
+<tr><td>36</td><td>schedule R000001 2026-11-28</td></tr>
+<tr><td>37</td><td>deleteBooking B000001</td></tr>
+<tr><td>38</td><td>removeUser U000001</td></tr>
+<tr><td>39</td><td>schedule R000001 2026-11-28</td></tr>
+<tr><td>40</td><td>logout</td></tr>
+<tr><td>41</td><td>login U000001</td></tr>
+<tr><td>42</td><td>login SA001</td></tr>
+<tr><td>43</td><td>book R000001 2026-11-28 09:00 10:00 Removed room booking</td></tr>
+<tr><td>44</td><td>deleteRoom R000001</td></tr>
+<tr><td>45</td><td>listRoom R000001</td></tr>
+<tr><td>46</td><td>listBookings</td></tr>
+<tr><td>47</td><td>book</td></tr>
+<tr><td>48</td><td>search invalid-date 09:00 10:00 1 -</td></tr>
+<tr><td>49</td><td>notACommand &lt;tag&gt;&amp;</td></tr>
+<tr><td>50</td><td>quit</td></tr>
+</table>
+</body></html>

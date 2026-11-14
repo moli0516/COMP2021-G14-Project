@@ -1,0 +1,57 @@
+CROBS>> Error: Please login first
+CROBS>> Error: The user is not found
+CROBS>> Logged in as SA001(superadmin, SUPERADMIN)
+CROBS>> Error: Please logout before login
+CROBS>> Room added: R000001 | meetingRoom | capacity: 10 | features [projector]
+CROBS>> User added: U000001(Alice Regression, REGULAR)
+CROBS>> User added: U000002(Bob Regression, REGULAR)
+CROBS>> Room updated: R000001 | meetingRoom | capacity: 20 | features [projector]
+CROBS>> R000001 | meetingRoom | capacity: 20 | features [projector]
+CROBS>> Error: Capacity must be a valid integer
+CROBS>> R000001 | meetingRoom | capacity: 20 | features [projector]
+CROBS>> Logged out.
+CROBS>> Logged in as U000001(Alice Regression, REGULAR)
+CROBS>> Error: Admin privilege is required
+CROBS>> Error: Admin privilege is required
+CROBS>> Error: Admin privilege is required
+CROBS>> Booking created: B000001 room R000001 2026-11-28 09:00-10:00 Original meeting ACTIVE
+CROBS>> Error: The room is already booked during this time.
+CROBS>> Booking created: B000002 room R000001 2026-11-28 10:00-11:00 Adjacent meeting ACTIVE
+CROBS>> Error: The room is already booked during this time.
+CROBS>> B000001 room R000001 2026-11-28 09:00-10:00 Original meeting ACTIVE
+B000002 room R000001 2026-11-28 10:00-11:00 Adjacent meeting ACTIVE
+CROBS>> No rooms were found.
+CROBS>> R000001 | meetingRoom | capacity: 20 | features [projector]
+CROBS>> No rooms were found.
+CROBS>> No rooms were found.
+CROBS>> Booking created: B000003 room R000001 2026-12-04 09:00-10:00 Last included day ACTIVE
+CROBS>> Booking created: B000004 room R000001 2026-12-05 09:00-10:00 Outside week ACTIVE
+CROBS>> B000001 | 2026-11-28 09:00-10:00 | Original meeting | booked by U000001
+B000002 | 2026-11-28 10:00-11:00 | Adjacent meeting | booked by U000001
+B000003 | 2026-12-04 09:00-10:00 | Last included day | booked by U000001
+CROBS>> Logged out.
+CROBS>> Logged in as U000002(Bob Regression, REGULAR)
+CROBS>> Error: Regular user cannot delete booking
+CROBS>> Error: Regular user cannot modify
+CROBS>> B000001 | 2026-11-28 09:00-10:00 | Original meeting | booked by hidden
+B000002 | 2026-11-28 10:00-11:00 | Adjacent meeting | booked by hidden
+B000003 | 2026-12-04 09:00-10:00 | Last included day | booked by hidden
+CROBS>> Logged out.
+CROBS>> Logged in as SA001(superadmin, SUPERADMIN)
+CROBS>> B000001 | 2026-11-28 09:00-10:00 | Original meeting | booked by U000001
+B000002 | 2026-11-28 10:00-11:00 | Adjacent meeting | booked by U000001
+B000003 | 2026-12-04 09:00-10:00 | Last included day | booked by U000001
+CROBS>> Error: Regular user cannot delete booking
+CROBS>> Removed: U000001
+CROBS>> No bookings this week.
+CROBS>> Logged out.
+CROBS>> Error: The user is not found
+CROBS>> Logged in as SA001(superadmin, SUPERADMIN)
+CROBS>> Booking created: B000005 room R000001 2026-11-28 09:00-10:00 Removed room booking ACTIVE
+CROBS>> Room deleted: R000001
+CROBS>> Error: The room is not found
+CROBS>> B000005 room R000001 2026-11-28 09:00-10:00 Removed room booking CANCELLED
+CROBS>> Error: Missing arguments for book
+CROBS>> Error: Invalid date 'invalid-date'. use yyyy-MM-dd format.
+CROBS>> Error: Unknown command: notACommand
+CROBS>> Bye.

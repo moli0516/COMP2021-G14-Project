@@ -1,0 +1,50 @@
+listAllRooms
+login UNKNOWN
+login SA001
+login SA001
+addRoom meetingRoom 10 projector
+addUser Alice Regression
+addUser Bob Regression
+modifyRoom R000001 capacity 20
+listRoom R000001
+modifyRoom R000001 capacity abc
+listRoom R000001
+logout
+login U000001
+addRoom meetingRoom 10 -
+addUser Forbidden
+modifyRoom R000001 capacity 30
+book R000001 2026-11-28 09:00 10:00 Original meeting
+book R000001 2026-11-28 09:30 10:30 Conflict
+book R000001 2026-11-28 10:00 11:00 Adjacent meeting
+modifyBooking B000001 R000001 2026-11-28 10:30 11:30 Rejected change
+listBookings
+search 2026-11-28 09:30 09:45 1 projector
+search 2026-11-28 11:00 12:00 20 projector
+search 2026-11-28 11:00 12:00 21 projector
+search 2026-11-28 11:00 12:00 1 whiteboard
+book R000001 2026-12-04 09:00 10:00 Last included day
+book R000001 2026-12-05 09:00 10:00 Outside week
+schedule R000001 2026-11-28
+logout
+login U000002
+deleteBooking B000001
+modifyBooking B000001 R000001 2026-11-28 12:00 13:00 Forbidden
+schedule R000001 2026-11-28
+logout
+login SA001
+schedule R000001 2026-11-28
+deleteBooking B000001
+removeUser U000001
+schedule R000001 2026-11-28
+logout
+login U000001
+login SA001
+book R000001 2026-11-28 09:00 10:00 Removed room booking
+deleteRoom R000001
+listRoom R000001
+listBookings
+book
+search invalid-date 09:00 10:00 1 -
+notACommand <tag>&
+quit

@@ -2,6 +2,7 @@ package hk.edu.polyu.comp.comp2021.crobs.model;
 
 import hk.edu.polyu.comp.comp2021.crobs.model.exceptions.AuthorizationException;
 import hk.edu.polyu.comp.comp2021.crobs.model.exceptions.NotFoundException;
+import hk.edu.polyu.comp.comp2021.crobs.model.exceptions.ValidationException;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
@@ -74,5 +75,56 @@ class CROBSRoomTest {
                         RoomType.values()[0],
                         10,
                         Collections.emptySet()));
+    }
+    @Test
+    void toCommandReturnsTheRequiredCommandSpellings() {
+        assertEquals(
+                "lectureTheatre",
+                RoomType.LECTURE_THEATRE.toCommand());
+        assertEquals(
+                "computerLab",
+                RoomType.COMPUTER_LAB.toCommand());
+        assertEquals(
+                "seminarRoom",
+                RoomType.SEMINAR_ROOM.toCommand());
+        assertEquals(
+                "meetingRoom",
+                RoomType.MEETING_ROOM.toCommand());
+    }
+
+    @Test
+    void fromCommandRecognizesEverySupportedRoomType() {
+        assertSame(
+                RoomType.LECTURE_THEATRE,
+                RoomType.fromCommand("lectureTheatre"));
+        assertSame(
+                RoomType.COMPUTER_LAB,
+                RoomType.fromCommand("computerLab"));
+        assertSame(
+                RoomType.SEMINAR_ROOM,
+                RoomType.fromCommand("seminarRoom"));
+        assertSame(
+                RoomType.MEETING_ROOM,
+                RoomType.fromCommand("meetingRoom"));
+    }
+
+    @Test
+    void fromCommandRejectsNullBlankUnknownAndWrongCase() {
+        String[] invalidValues = {
+                null,
+                "",
+                " ",
+                "office",
+                "MeetingRoom",
+                "MEETING_ROOM",
+                " meetingRoom "
+        };
+
+        for (String value : invalidValues) {
+            assertThrows(
+                    ValidationException.class,
+                    () -> RoomType.fromCommand(value),
+                    "Should reject room type: " + value);
+        }
     }
 }
