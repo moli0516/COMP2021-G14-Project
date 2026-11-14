@@ -11,7 +11,13 @@ import java.util.*;
 public final class BookingRepository {
     private final Map<String, Booking> entries = new HashMap<>();
 
-    /** Restores a private model snapshot; never exposed to CLI or Web callers.  */
+    /**
+     * Replaces all entries with a trusted private model snapshot.
+     * This internal restoration path does not allocate new entity IDs.
+     *
+     * @param snapshot the non-null mapping of original IDs to booking objects
+     * @throws NullPointerException if snapshot is null
+     */
     void restoreEntries(Map<String, Booking> snapshot) {
         entries.clear();
         entries.putAll(snapshot);

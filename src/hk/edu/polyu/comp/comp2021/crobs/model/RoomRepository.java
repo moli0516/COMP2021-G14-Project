@@ -14,7 +14,13 @@ import java.util.List;
 public final class RoomRepository {
     private final Map<String, Room> entries = new HashMap<>();
 
-    /** Restores a private model snapshot; never exposed to CLI or Web callers. */
+    /**
+     * Replaces all entries with a trusted private model snapshot.
+     * This internal restoration path does not allocate new entity IDs.
+     *
+     * @param snapshot the non-null mapping of original IDs to room objects
+     * @throws NullPointerException if snapshot is null
+     */
     void restoreEntries(Map<String, Room> snapshot) {
         entries.clear();
         entries.putAll(snapshot);

@@ -122,6 +122,11 @@ function render(section){
  const root=$("forms");root.replaceChildren();
  for(const[command,fields]of operations[section]){
   const form=document.createElement("form"),row=element("div",undefined,"fields");form.append(element("h3",labels[command]),row);
+  if(command==="book"||command==="modifyBooking"){
+   form.append(element("p",
+    "Start must be in the future in the server's local time zone. Today's later times are allowed. Invalid times are shown as operation errors after submission.",
+    "muted"));
+  }
   for(const[name,type]of fields){const label=element("label",name);
    if(["roomId","bookingId","userId"].includes(name))buildIdField(label,name,command);
    else{const input=document.createElement(Array.isArray(type)?"select":"input");input.name=name;input.required=true;

@@ -5,6 +5,9 @@ import hk.edu.polyu.comp.comp2021.crobs.model.User;
 
 /** JSON envelope for all Web command results; CLI formatting remains unchanged. */
 public final class WebCommandResult {
+    /**
+     * Prevents construction of this JSON formatting utility.
+     */
     private WebCommandResult() { }
 
     /**
@@ -12,7 +15,9 @@ public final class WebCommandResult {
      * @param command original command line
      * @param output existing command output
      * @param model model owning the shared session
-     * @return a JSON object
+     * @return a JSON object with ok false for Error-prefixed output, preserving
+     *         the original error message in the output field
+     * @throws NullPointerException if command, output, or model is null
      */
     public static String toJson(String command, String output, CROBS model) {
         User user = model.getCurrentUser();
@@ -26,6 +31,13 @@ public final class WebCommandResult {
                 + ",\"userRole\":" + quote(user == null ? "" : user.getRole().name()) + "}";
     }
 
+    /**
+     * Quotes text as JSON, escaping controls and surrogate code units.
+     *
+     * @param value the non-null text to encode
+     * @return the quoted JSON string literal
+     * @throws NullPointerException if value is null
+     */
     private static String quote(String value) {
         StringBuilder result = new StringBuilder("\"");
         for (int index = 0; index < value.length(); index++) {

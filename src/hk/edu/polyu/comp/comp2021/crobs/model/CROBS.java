@@ -4,7 +4,9 @@ import hk.edu.polyu.comp.comp2021.crobs.model.exceptions.AuthorizationException;
 import hk.edu.polyu.comp.comp2021.crobs.model.exceptions.BookingConflictException;
 import hk.edu.polyu.comp.comp2021.crobs.model.exceptions.ValidationException;
 
+import java.time.Clock;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Objects;
 import java.util.Set;
@@ -31,6 +33,10 @@ public class CROBS {
      * @param name exact command verb
      * @param action authorized command action
      * @return original CLI-compatible output
+     * @throws AuthorizationException if the action is not authorized
+     * @throws ValidationException if execution is nested or the action is invalid
+     * @throws RuntimeException if the action fails; repository data is rolled
+     *         back but consumed ID numbers are not rewound
      */
     public synchronized String executeRecorded(String name,
             java.util.function.Supplier<String> action) {
@@ -61,26 +67,62 @@ public class CROBS {
         }
     }
 
-    /** @return a receipt for the most recent successfully undone data command */
+    /**
+     * Restores the before snapshot of the latest applied data command.
+     * Original entity IDs are retained and the clock is not rewound.
+     *
+     * @return a receipt naming the undone command
+     * @throws AuthorizationException if login or entry ownership is invalid
+     * @throws ValidationException if history is empty, recording is active,
+     *         or direct model edits invalidate the expected snapshot
+     */
     public synchronized String undo() {
         return moveHistory(undoHistory, redoHistory, true);
     }
 
-    /** @return a receipt for the most recent successfully redone data command */
+    /**
+     * Restores the after snapshot of the latest undone data command.
+     * Original entity IDs are retained and the clock is not rewound.
+     *
+     * @return a receipt naming the redone command
+     * @throws AuthorizationException if login or entry ownership is invalid
+     * @throws ValidationException if history is empty, recording is active,
+     *         or direct model edits invalidate the expected snapshot
+     */
     public synchronized String redo() {
         return moveHistory(redoHistory, undoHistory, false);
     }
 
-    /** @return whether the current session has an undo entry */
+    /**
+     * Reports whether a logged-in session has a nonempty undo stack.
+     * Direct edits can still prevent execution of the recorded operation.
+     *
+     * @return whether a logged-in session has a undo entry
+     */
     public synchronized boolean canUndo() {
         return getCurrentUser() != null && !undoHistory.isEmpty();
     }
 
-    /** @return whether the current session has a redo entry */
+    /**
+     * Reports whether a logged-in session has a nonempty redo stack.
+     * Direct edits can still prevent execution of the recorded operation.
+     *
+     * @return whether a logged-in session has a redo entry
+     */
     public synchronized boolean canRedo() {
         return getCurrentUser() != null && !redoHistory.isEmpty();
     }
 
+    /**
+     * Validates and transfers a history entry after restoring its snapshot.
+     *
+     * @param source the source history stack
+     * @param destination the destination history stack
+     * @param backwards true for undo, false for redo
+     * @return a receipt naming the restored command
+     * @throws AuthorizationException if login or actor ownership is invalid
+     * @throws ValidationException if recording, empty history, or state divergence prevents restoration
+     */
     private String moveHistory(java.util.Deque<HistoryEntry> source,
             java.util.Deque<HistoryEntry> destination, boolean backwards) {
         User actor = requiredLoggedIn();
@@ -100,6 +142,12 @@ public class CROBS {
         return (backwards ? "Undone: " : "Redone: ") + entry.name;
     }
 
+    /**
+     * Identifies command verbs whose successful mutations are recorded.
+     *
+     * @param name the non-null, case-sensitive command verb
+     * @return true if execution should create a history entry
+     */
     private static boolean isDataCommand(String name) {
         switch (name) {
             case "addUser": case "removeUser": case "changeRole":
@@ -110,10 +158,20 @@ public class CROBS {
         }
     }
 
+    /**
+     * Captures repository mappings, excluding session, clock, and ID counters.
+     *
+     * @return an independent mapping snapshot containing immutable entity references
+     */
     private State snapshot() {
         return new State(users.findAll(), rooms.findAll(), bookings.findAll());
     }
 
+    /**
+     * Restores a trusted snapshot without applying new-reservation time checks.
+     *
+     * @param state the non-null private model snapshot
+     */
     private void restore(State state) {
         // Snapshots are private, generated by this model, and contain immutable entities.
         users.restoreEntries(state.users);
@@ -121,29 +179,56 @@ public class CROBS {
         bookings.restoreEntries(state.bookings);
     }
 
+    /**
+     * Private snapshot of repository mappings containing immutable entities.
+     */
     private static final class State {
         private final java.util.Map<String, User> users = new java.util.HashMap<>();
         private final java.util.Map<String, Room> rooms = new java.util.HashMap<>();
         private final java.util.Map<String, Booking> bookings = new java.util.HashMap<>();
 
+        /**
+         * Copies entity lists into independent ID mappings.
+         *
+         * @param userList the users to capture
+         * @param roomList the rooms to capture
+         * @param bookingList the bookings to capture
+         */
         private State(List<User> userList, List<Room> roomList, List<Booking> bookingList) {
             for (User value : userList) users.put(value.getUserId(), value);
             for (Room value : roomList) rooms.put(value.getRoomId(), value);
             for (Booking value : bookingList) bookings.put(value.getBookingId(), value);
         }
 
+        /**
+         * Compares all repository mappings with another private snapshot.
+         *
+         * @param other the non-null snapshot to compare
+         * @return true if the repository mappings match
+         */
         private boolean sameAs(State other) {
             return users.equals(other.users) && rooms.equals(other.rooms)
                     && bookings.equals(other.bookings);
         }
     }
 
+    /**
+     * One actor-owned command and its before/after repository snapshots.
+     */
     private static final class HistoryEntry {
         private final String name;
         private final String actorId;
         private final State before;
         private final State after;
 
+        /**
+         * Creates an entry for a successful data mutation.
+         *
+         * @param name the command verb
+         * @param actorId the actor user ID
+         * @param before the state before execution
+         * @param after the state after execution
+         */
         private HistoryEntry(String name, String actorId, State before, State after) {
             this.name = name;
             this.actorId = actorId;
@@ -156,13 +241,27 @@ public class CROBS {
     private final BookingRepository bookings;
     private final RoomRepository rooms;
     private final IdGenerator idGenerator;
+    private final Clock clock;
 
     private String currentUserId;
 
     /**
-     * Creates empty repositories and the initial superadmin {@code SA001}, with no logged-in user.
+     * Creates an empty system using the server's default-zone clock.
+     * The initial superadmin is {@code SA001}; no user is logged in.
      */
     public CROBS(){
+        this(Clock.systemDefaultZone());
+    }
+
+    /**
+     * Creates an empty system with a supplied clock for reservation validation
+     * and date-based room deletion. History does not capture or rewind the clock.
+     *
+     * @param clock the non-null clock defining the system's local time zone
+     * @throws NullPointerException if clock is null
+     */
+    public CROBS(Clock clock) {
+        this.clock = Objects.requireNonNull(clock, "clock");
         this.users = new UserRepository();
         this.bookings = new BookingRepository();
         this.rooms = new RoomRepository();
@@ -371,7 +470,7 @@ public class CROBS {
         requiredAdmin();
         rooms.require(roomId);
 
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now(clock);
         for (Booking booking : bookings.findByRoom(roomId)) {
             if (!booking.isCancelled()
                     && !booking.getDate().isBefore(today)) {
@@ -383,6 +482,8 @@ public class CROBS {
 
     /**
      * Creates an active booking owned by the current user; requires login.
+     * The proposed start must be strictly after now in the system clock's zone.
+     * Time validation occurs before booking ID allocation or repository mutation.
      *
      * @param roomId the existing room to book
      * @param date the non-null booking date
@@ -399,6 +500,7 @@ public class CROBS {
                                  LocalTime startTime, LocalTime endTime, String purpose){
         requiredLoggedIn();
         rooms.require(roomId);
+        validateBookingTime(date, startTime, endTime);
         checkBookingConflict(roomId, date, startTime, endTime, null);
         
         Booking booking = new Booking(idGenerator.nextBookingId(),currentUserId,roomId,date,startTime,endTime,purpose,false);
@@ -408,6 +510,8 @@ public class CROBS {
 
     /**
      * Replaces a booking with validated active details; only its logged-in owner may modify it.
+     * The proposed start must be strictly after now in the system clock's zone.
+     * Time validation occurs before booking ID allocation or repository mutation.
      *
      * @param bookingId the existing booking to replace
      * @param roomId the existing room to book
@@ -431,6 +535,7 @@ public class CROBS {
 
         rooms.require(roomId);
 
+        validateBookingTime(date, startTime, endTime);
         checkBookingConflict(roomId, date, startTime, endTime, bookingId);
 
         Booking booking = new Booking(bookingId,currentUserId,roomId,date,startTime,endTime,purpose,false);
@@ -452,6 +557,37 @@ public class CROBS {
         }
 
         bookings.remove(bookingId);
+    }
+
+    /**
+     * Validates proposed reservation times using one reading of the system clock.
+     * This creation/modification policy is not applied to historical Booking
+     * objects, queries, or trusted undo/redo snapshot restoration.
+     *
+     * @param date the proposed date in the system clock's local time zone
+     * @param startTime the inclusive start, which must be strictly after now
+     * @param endTime the exclusive end, which must be strictly after the start
+     * @throws ValidationException if any value is null, the interval does not
+     *         increase, the date is in the past, or the start is not in the future
+     */
+    private void validateBookingTime(LocalDate date, LocalTime startTime,
+                                     LocalTime endTime) {
+        if (date == null) {
+            throw new ValidationException("Booking date must not be null");
+        }
+        if (startTime == null || endTime == null) {
+            throw new ValidationException("Start time and end time must not be null");
+        }
+        if (!startTime.isBefore(endTime)) {
+            throw new ValidationException("Start time must be before end time");
+        }
+        LocalDateTime now = LocalDateTime.now(clock);
+        if (date.isBefore(now.toLocalDate())) {
+            throw new ValidationException("Booking date must not be in the past");
+        }
+        if (!LocalDateTime.of(date, startTime).isAfter(now)) {
+            throw new ValidationException("Booking start time must be in the future");
+        }
     }
 
     /**

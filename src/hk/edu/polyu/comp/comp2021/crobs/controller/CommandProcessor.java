@@ -19,6 +19,8 @@ public final class CommandProcessor {
 
     /**
      * Parses and executes one command line.
+     * Booking-time validation failures retain the Error prefix and model message
+     * used by both CLI output and the structured Web result envelope.
      *
      * @param commandLine the raw command line
      * @return the command output, or an {@code Error: ...} message if it fails

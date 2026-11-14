@@ -33,7 +33,9 @@ public final class CommandParser {
      * {@code ValidationException}.
      *
      * @param commandLine the raw command line
-     * @return the matching command, ready to execute
+     * @return the matching command wrapped for shared model history recording
+     * @throws ValidationException if input is null, blank, unknown, or malformed;
+     *         booking-time semantics are checked during command execution
      */
     public Command parse(String commandLine) {
         if (commandLine == null || commandLine.trim().isEmpty()) {
@@ -54,6 +56,13 @@ public final class CommandParser {
         };
     }
 
+    /**
+     * Parses nonblank input without adding the history wrapper.
+     *
+     * @param commandLine the validated nonblank command line
+     * @return the concrete command
+     * @throws ValidationException if the verb or arguments are invalid
+     */
     private Command parseCore(String commandLine) {
         String[] words=commandLine.trim().split("\\s+");
         String name=words[0];
@@ -124,16 +133,37 @@ public final class CommandParser {
                 throw new ValidationException("Unknown command: "+name);
         }
     }
+    /**
+     * Requires an exact token count including the command name.
+     *
+     * @param words the nonempty token array
+     * @param count the required token count
+     * @throws ValidationException if the count differs
+     */
     private static void checkExactly(String[] words, int count){
         if(words.length!=count){
             throw new ValidationException("Wrong number of arguments for "+words[0]);
         }
     }
+    /**
+     * Requires a minimum token count including the command name.
+     *
+     * @param words the nonempty token array
+     * @param count the minimum token count
+     * @throws ValidationException if too few tokens are supplied
+     */
     private static void checkAtLeast(String[] words, int count){
         if(words.length<count){
             throw new ValidationException("Missing arguments for "+ words[0]);
         }
     }
+    /**
+     * Joins trailing command tokens with single spaces.
+     *
+     * @param words the token array
+     * @param start the valid first token index
+     * @return the joined trailing text
+     */
     private static String joinFrom(String[] words, int start){
         StringBuilder result= new StringBuilder(words[start]);
         for (int i=start+1;i<words.length;i++){
@@ -141,6 +171,13 @@ public final class CommandParser {
         }
         return result.toString();
     }
+    /**
+     * Parses an ISO date without applying reservation-time policy.
+     *
+     * @param text the non-null date token
+     * @return the parsed date
+     * @throws ValidationException if parsing fails
+     */
     private static LocalDate parseDate(String text){
         try{
             return LocalDate.parse(text);
@@ -148,6 +185,13 @@ public final class CommandParser {
             throw new ValidationException("Invalid date '"+text+"'. use yyyy-MM-dd format.");
         }
     }
+    /**
+     * Parses an ISO local time without applying reservation-time policy.
+     *
+     * @param text the non-null time token
+     * @return the parsed local time
+     * @throws ValidationException if parsing fails
+     */
     private static LocalTime parseTime(String text){
         try{
             return LocalTime.parse(text);
@@ -155,6 +199,13 @@ public final class CommandParser {
             throw new ValidationException("Invalid time '"+text+"' use HH:mm format.");
         }
     }
+    /**
+     * Parses a signed integer; domain bounds remain in the model.
+     *
+     * @param text the integer token
+     * @return the parsed integer
+     * @throws ValidationException if the token is not a representable integer
+     */
     private static int parseNumber(String text){
         try{
             return Integer.parseInt(text);
@@ -162,6 +213,13 @@ public final class CommandParser {
             throw new ValidationException("Invalid number");
         }
     }
+    /**
+     * Resolves an exact room-type command spelling.
+     *
+     * @param text the room-type token
+     * @return the matching room type
+     * @throws ValidationException if no room type matches
+     */
     private static RoomType parseRoomType(String text){
         for(RoomType type:RoomType.values()){
             if (type.toCommand().equals(text)){
@@ -170,6 +228,13 @@ public final class CommandParser {
         }
         throw new ValidationException("Unknown room type. use lectureTheatre, computerLab, seminarRoom or meetingRoom.");
     }
+    /**
+     * Parses a case-insensitive assignable role.
+     *
+     * @param text the non-null role token
+     * @return REGULAR or ADMIN
+     * @throws ValidationException if the role is not assignable
+     */
     private static UserRole parseRole(String text){
         if(text.equalsIgnoreCase("REGULAR")){
             return UserRole.REGULAR;
@@ -179,6 +244,13 @@ public final class CommandParser {
         }
         throw new ValidationException("Invalid role. Use REGULAR or ADMIN.");
     }
+    /**
+     * Parses feature names, treating a dash as an empty set.
+     *
+     * @param text the non-null feature token
+     * @return the parsed feature names
+     * @throws IllegalArgumentException if feature syntax is invalid
+     */
     private static Set<String> parseFeatures(String text){
         if(text.equals("-")){
             return new HashSet<>();
