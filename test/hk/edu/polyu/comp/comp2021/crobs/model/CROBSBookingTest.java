@@ -18,7 +18,9 @@ class CROBSBookingTest {
     private final LocalDate day = LocalDate.of(2026, 11, 10);
 
     private CROBS started() {
-        CROBS crobs = new CROBS();
+        CROBS crobs = new CROBS(java.time.Clock.fixed(
+                java.time.Instant.parse("2026-11-09T00:00:00Z"),
+                java.time.ZoneOffset.UTC));
         crobs.login("SA001");
         return crobs;
     }

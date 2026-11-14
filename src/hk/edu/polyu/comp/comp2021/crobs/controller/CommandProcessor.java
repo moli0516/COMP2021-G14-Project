@@ -19,6 +19,8 @@ public final class CommandProcessor {
 
     /**
      * Parses and executes one command line.
+     * Booking-time validation failures retain the Error prefix and model message
+     * used by both CLI output and the structured Web result envelope.
      *
      * @param commandLine the raw command line
      * @return the command output, or an {@code Error: ...} message if it fails
@@ -32,6 +34,10 @@ public final class CommandProcessor {
             }
             return result;
         }catch(CrobsException e){
+            return "Error: "+e.getMessage();
+        }catch(IllegalArgumentException e){
+            return "Error: "+e.getMessage();
+        }catch(java.time.DateTimeException e){
             return "Error: "+e.getMessage();
         }
     }

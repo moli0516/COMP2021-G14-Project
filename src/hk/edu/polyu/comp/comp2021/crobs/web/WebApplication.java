@@ -94,8 +94,9 @@ public final class WebApplication {
 
         try (CommandLogger htmlLog = new HtmlCommandLogger(html);
              CommandLogger txtLog = new TextCommandLogger(txt)) {
+            CROBS crobs = new CROBS();
             CommandProcessor processor =
-                    new CommandProcessor(new CommandParser(new CROBS()));
+                    new CommandProcessor(new CommandParser(crobs));
             Object lock = new Object();
             CountDownLatch stopped = new CountDownLatch(1);
 
@@ -143,8 +144,11 @@ public final class WebApplication {
                             txtLog.log(command);
 
                             String output = processor.process(command);
+                            boolean json = "application/json".equals(
+                                    exchange.getRequestHeaders().getFirst("Accept"));
                             send(exchange, HttpURLConnection.HTTP_OK,
-                                    "text/plain", output);
+                                    json ? "application/json" : "text/plain",
+                                    json ? WebCommandResult.toJson(command, output, crobs) : output);
 
                             if (processor.isQuitRequested()) {
                                 stopped.countDown();
