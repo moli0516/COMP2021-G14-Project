@@ -11,6 +11,12 @@ import java.util.*;
 public final class BookingRepository {
     private final Map<String, Booking> entries = new HashMap<>();
 
+    /** Restores a private model snapshot; never exposed to CLI or Web callers.  */
+    void restoreEntries(Map<String, Booking> snapshot) {
+        entries.clear();
+        entries.putAll(snapshot);
+    }
+
     /**
      * Finds an existing booking by ID.
      *

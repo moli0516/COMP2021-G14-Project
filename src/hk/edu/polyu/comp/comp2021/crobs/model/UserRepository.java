@@ -15,6 +15,12 @@ import java.util.List;
 public final class UserRepository {
     private final Map<String, User> entries = new HashMap<>();
 
+    /** Restores a private model snapshot; never exposed to CLI or Web callers. */
+    void restoreEntries(Map<String, User> snapshot) {
+        entries.clear();
+        entries.putAll(snapshot);
+    }
+
     /**
      * Finds an existing user by ID.
      *

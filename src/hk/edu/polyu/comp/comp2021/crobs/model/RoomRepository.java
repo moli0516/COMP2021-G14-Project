@@ -14,6 +14,12 @@ import java.util.List;
 public final class RoomRepository {
     private final Map<String, Room> entries = new HashMap<>();
 
+    /** Restores a private model snapshot; never exposed to CLI or Web callers. */
+    void restoreEntries(Map<String, Room> snapshot) {
+        entries.clear();
+        entries.putAll(snapshot);
+    }
+
     /**
      * Finds an existing room by ID.
      *

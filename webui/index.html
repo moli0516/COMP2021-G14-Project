@@ -3,7 +3,8 @@
 <meta name="crobs-token" content="TOKEN_PLACEHOLDER"><title>CROBS Room Booking</title><link rel="stylesheet" href="/style.css"><script src="/app.js" defer></script></head>
 <body><header><h1>CROBS</h1><nav id="navigation" aria-label="Sections"></nav><span class="badge">Local shared session</span></header>
 <main><p class="muted">One local operator. All tabs share the same login. Start with SA001. Data is discarded when the server exits.</p>
+<section class="card history-toolbar" aria-label="Session and command history"><span id="session-state">Not logged in</span><div class="toolbar-actions"><button id="undo" type="button" disabled>Undo</button><button id="redo" type="button" disabled>Redo</button><button id="refresh-options" type="button">Refresh ID options</button></div><p class="muted">History is limited to the latest 100 data changes in this login session. Successful login/logout clears history. All tabs share the same state.</p><p id="option-status" class="muted">Options are refreshed through logged read-only commands.</p></section>
 <section class="card"><h2 id="section-title">Session</h2><div id="forms"></div></section>
-<section class="card" aria-live="polite"><h2>Result</h2><p id="status">Ready</p><pre id="output">Select an operation above.</pre></section>
+<section class="card" aria-live="polite"><h2>Result</h2><p id="status">Ready</p><div id="output" class="result">Select an operation above.</div></section>
 <section class="card"><h2>Activity</h2><p class="muted">This browser's submitted commands; server HTML/TXT logs are recorded separately.</p><ol id="activity"></ol></section>
 </main></body></html>

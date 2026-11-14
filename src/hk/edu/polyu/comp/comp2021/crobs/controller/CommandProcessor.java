@@ -33,6 +33,10 @@ public final class CommandProcessor {
             return result;
         }catch(CrobsException e){
             return "Error: "+e.getMessage();
+        }catch(IllegalArgumentException e){
+            return "Error: "+e.getMessage();
+        }catch(java.time.DateTimeException e){
+            return "Error: "+e.getMessage();
         }
     }
 

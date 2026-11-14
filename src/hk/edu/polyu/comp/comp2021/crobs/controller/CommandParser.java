@@ -36,10 +36,35 @@ public final class CommandParser {
      * @return the matching command, ready to execute
      */
     public Command parse(String commandLine) {
+        if (commandLine == null || commandLine.trim().isEmpty()) {
+            throw new ValidationException("One nonblank command required");
+        }
+        final String name = commandLine.trim().split("\\s+", 2)[0];
+        final Command delegate = parseCore(commandLine);
+        return new Command() {
+            @Override
+            public String execute() {
+                return crobs.executeRecorded(name, delegate::execute);
+            }
+
+            @Override
+            public boolean isQuit() {
+                return delegate.isQuit();
+            }
+        };
+    }
+
+    private Command parseCore(String commandLine) {
         String[] words=commandLine.trim().split("\\s+");
         String name=words[0];
 
         switch(name){
+            case "undo":
+                checkExactly(words, 1);
+                return new UndoCommand(crobs);
+            case "redo":
+                checkExactly(words, 1);
+                return new RedoCommand(crobs);
             case "addUser":
                 checkAtLeast(words, 2);
                 return new AddUserCommand(crobs, joinFrom(words,1));
