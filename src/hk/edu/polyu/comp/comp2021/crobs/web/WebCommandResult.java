@@ -6,6 +6,11 @@ import hk.edu.polyu.comp.comp2021.crobs.model.User;
 /** JSON envelope for all Web command results; CLI formatting remains unchanged. */
 public final class WebCommandResult {
     /**
+     *
+     */
+    public static final int INT = 0x20;
+
+    /**
      * Prevents construction of this JSON formatting utility.
      */
     private WebCommandResult() { }
@@ -49,7 +54,7 @@ public final class WebCommandResult {
                 case '\r': result.append("\\r"); break;
                 case '\t': result.append("\\t"); break;
                 default:
-                    if (ch < 0x20 || Character.isSurrogate(ch)) {
+                    if (ch < INT || Character.isSurrogate(ch)) {
                         String hex = Integer.toHexString(ch);
                         result.append("\\u");
                         for (int pad = hex.length(); pad < 4; pad++) result.append('0');
