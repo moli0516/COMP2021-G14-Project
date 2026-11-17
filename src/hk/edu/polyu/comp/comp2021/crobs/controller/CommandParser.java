@@ -43,17 +43,7 @@ public final class CommandParser {
         }
         final String name = commandLine.trim().split("\\s+", 2)[0];
         final Command delegate = parseCore(commandLine);
-        return new Command() {
-            @Override
-            public String execute() {
-                return crobs.executeRecorded(name, delegate::execute);
-            }
-
-            @Override
-            public boolean isQuit() {
-                return delegate.isQuit();
-            }
-        };
+        return new MyCommand(name, delegate);
     }
 
     /**
@@ -256,5 +246,25 @@ public final class CommandParser {
             return new HashSet<>();
         }
         return FeatureSet.parse(text).asSet();
+    }
+
+    private class MyCommand implements Command {
+        private final String name;
+        private final Command delegate;
+
+        public MyCommand(String name, Command delegate) {
+            this.name = name;
+            this.delegate = delegate;
+        }
+
+        @Override
+        public String execute() {
+            return crobs.executeRecorded(name, delegate::execute);
+        }
+
+        @Override
+        public boolean isQuit() {
+            return delegate.isQuit();
+        }
     }
 }
